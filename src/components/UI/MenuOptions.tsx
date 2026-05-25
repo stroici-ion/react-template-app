@@ -25,10 +25,7 @@ const MenuOptions: React.FC<MenuOptionsProps> = ({ options }) => {
         return (
           <button
             key={index}
-            onClick={(e) => {
-              e.stopPropagation(); // Prevents trigger conflicts
-              option.onClick();
-            }}
+            onClick={() => option.onClick()}
             className="group flex w-full cursor-pointer items-center px-3 py-3 text-left transition-colors duration-200"
             style={{
               backgroundColor: option.background || "transparent",

@@ -6,13 +6,13 @@ import type { UseFormRegister } from "react-hook-form";
 
 interface InputProps {
   id: string;
+  size?: "xs" | "sm" | "md" | "lg";
   name?: string;
   error?: string;
   label?: string;
   type?: string;
   required?: boolean;
   value?: string;
-  onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
   placeholder?: string;
   color?: string;
   labelColor?: string;
@@ -21,6 +21,8 @@ interface InputProps {
   iconPosition?: "left" | "right";
   iconOnClick?: () => void;
   register?: UseFormRegister<any>;
+  onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onKeyDown?: (e: React.KeyboardEvent<HTMLInputElement>) => void;
 }
 
 const labelColorVariants: Record<string, string> = {
@@ -81,6 +83,13 @@ const focusRingVariants: Record<string, string> = {
   gray: "focus:ring-blue-500",
 };
 
+const sizeVariants: Record<string, string> = {
+  xs: "text-xs py-1.5",
+  sm: "text-sm py-1",
+  md: "text-base py-2",
+  lg: "text-lg py-2",
+};
+
 export function Input({
   id,
   name,
@@ -98,6 +107,8 @@ export function Input({
   iconOnClick,
   className,
   register,
+  onKeyDown,
+  size = "md",
 }: InputProps) {
   const paddingClasses = icon
     ? iconPosition === "left"
@@ -130,11 +141,13 @@ export function Input({
           onChange={onChange}
           placeholder={placeholder}
           className={clsx(
-            "w-full rounded-lg border py-2 transition-colors focus:outline-none focus:ring-1",
+            "w-full rounded-lg border transition-colors focus:outline-none focus:ring-1",
             inputColorVariants[color],
             focusRingVariants[styles.primary] || "focus:ring-blue-500",
+            sizeVariants[size],
             paddingClasses,
           )}
+          onKeyDown={onKeyDown}
         />
 
         {icon && (

@@ -42,7 +42,7 @@ export function useAsyncEvent<TData, TArgs extends any[]>(
             ? err.message
             : typeof err === "string"
               ? err
-              : "Failed to execute async event";
+              : "Something went wrong.";
 
         setError(errorMessage);
 
