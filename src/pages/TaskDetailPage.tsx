@@ -242,7 +242,7 @@ export default function TaskDetailPage() {
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       <Header />
 
-      <main className="mx-auto max-w-7xl px-6 py-8">
+      <main className="mx-auto max-w-7xl px-4 py-6 sm:px-6 sm:py-8">
         {/* Breadcrumb */}
         <div className="mb-6 flex items-center gap-2 text-sm">
           <button
@@ -283,7 +283,7 @@ export default function TaskDetailPage() {
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
                   placeholder="Task title…"
-                  className="mb-1 w-full border-0 border-b-2 border-transparent bg-transparent pb-1 text-2xl font-bold text-gray-900 transition-colors placeholder:text-gray-300 hover:border-gray-200 focus:border-indigo-500 focus:outline-none dark:text-gray-50 dark:placeholder:text-gray-600 dark:hover:border-gray-600 dark:focus:border-indigo-400"
+                  className="mb-1 w-full border-0 border-b-2 border-transparent bg-transparent pb-1 text-xl font-bold text-gray-900 transition-colors placeholder:text-gray-300 hover:border-gray-200 focus:border-indigo-500 focus:outline-none dark:text-gray-50 dark:placeholder:text-gray-600 dark:hover:border-gray-600 dark:focus:border-indigo-400 sm:text-2xl"
                 />
                 <p className="mb-6 text-xs text-gray-400 dark:text-gray-500">
                   Task #{task.id} · Project{" "}
@@ -356,7 +356,7 @@ export default function TaskDetailPage() {
 
           {/* ── Right: Aside panel ── */}
           <div className="lg:col-span-1">
-            <div className="sticky top-6 rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
+            <div className="rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800 lg:sticky lg:top-6">
               {/* Assignees */}
               <AsideSection icon={<Users size={13} />} title="Assignees">
                 <UserSearchDropdown

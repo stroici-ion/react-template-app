@@ -92,7 +92,7 @@ export default function ProjectDetail() {
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       <Header />
 
-      <main className="mx-auto max-w-7xl px-6 py-8">
+      <main className="mx-auto max-w-7xl px-4 py-6 sm:px-6 sm:py-8">
         <button
           onClick={() => navigate("/projects")}
           className="mb-6 flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-100"
@@ -107,7 +107,7 @@ export default function ProjectDetail() {
               style={{ backgroundColor: project.colorCode ?? "#6366f1" }}
             />
             <div>
-              <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-50">
+              <h1 className="text-xl font-bold text-gray-900 dark:text-gray-50 sm:text-2xl">
                 {project.name}
               </h1>
               {project.description && (

@@ -232,24 +232,26 @@ export const TaskItem = ({
               )}
             </div>
 
-            <InlineAssigneePicker taskId={taskId} projectId={task.projectId} />
-            <div onClick={(e) => e.stopPropagation()}>
-              {task.dueDate ? (
-                <div
-                  className="cursor pointer flex items-center gap-2 rounded-full bg-white px-2 py-0.5 text-[11px] text-gray-400 dark:bg-gray-800"
-                  onClick={() => setShowDatePicker((state) => !state)}
-                >
-                  <Calendar size={12} />
-                  {new Date(task.dueDate).toLocaleDateString()}
-                </div>
-              ) : (
-                <TextButton
-                  size="xs"
-                  text="Set due date"
-                  icon={<Calendar size={12} />}
-                  onClick={() => setShowDatePicker((state) => !state)}
-                />
-              )}
+            <div className="hidden items-center gap-2 sm:flex">
+              <InlineAssigneePicker taskId={taskId} projectId={task.projectId} />
+              <div onClick={(e) => e.stopPropagation()}>
+                {task.dueDate ? (
+                  <div
+                    className="cursor pointer flex items-center gap-2 rounded-full bg-white px-2 py-0.5 text-[11px] text-gray-400 dark:bg-gray-800"
+                    onClick={() => setShowDatePicker((state) => !state)}
+                  >
+                    <Calendar size={12} />
+                    {new Date(task.dueDate).toLocaleDateString()}
+                  </div>
+                ) : (
+                  <TextButton
+                    size="xs"
+                    text="Set due date"
+                    icon={<Calendar size={12} />}
+                    onClick={() => setShowDatePicker((state) => !state)}
+                  />
+                )}
+              </div>
             </div>
             <div onClick={(e) => e.stopPropagation()}>
               <ContextMenu

@@ -45,7 +45,7 @@ const Card: React.FC<CardProps> = ({
       className={clsx(
         colorVariants[color],
         maxWidthVariants[maxWidth],
-        "w-full rounded-xl p-8 shadow-2xl",
+        "w-full rounded-xl p-4 shadow-2xl sm:p-8",
         className,
       )}
     >
