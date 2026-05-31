@@ -70,9 +70,7 @@ function KanbanCard({
 
   return (
     <div
-      onClick={() =>
-        navigate(`/projects/${task.projectId}/tasks/${task.id}`)
-      }
+      onClick={() => navigate(`/projects/${task.projectId}/tasks/${task.id}`)}
       className={`group cursor-pointer rounded-lg border border-gray-200 bg-white p-3 shadow-sm transition-shadow hover:shadow-md dark:border-gray-700 dark:bg-gray-700 ${isDragging ? "opacity-50" : ""}`}
     >
       <div className="flex items-start gap-2">

@@ -187,7 +187,9 @@ export default function TaskDetailPage() {
   };
 
   const handleRemoveAssignee = (user: User) => {
-    setPendingAssigneeIds((prev) => prev.filter((id) => id !== Number(user.id)));
+    setPendingAssigneeIds((prev) =>
+      prev.filter((id) => id !== Number(user.id)),
+    );
     setPendingAssignees((prev) => prev.filter((u) => u.id !== user.id));
   };
 
@@ -316,9 +318,7 @@ export default function TaskDetailPage() {
                       <li key={sub.id}>
                         <button
                           onClick={() =>
-                            navigate(
-                              `/projects/${projectId}/tasks/${sub.id}`,
-                            )
+                            navigate(`/projects/${projectId}/tasks/${sub.id}`)
                           }
                           className="group flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm transition-colors hover:bg-gray-50 dark:hover:bg-gray-700/50"
                         >
@@ -376,10 +376,7 @@ export default function TaskDetailPage() {
               </AsideSection>
 
               {/* Parent Task */}
-              <AsideSection
-                icon={<GitBranch size={13} />}
-                title="Parent Task"
-              >
+              <AsideSection icon={<GitBranch size={13} />} title="Parent Task">
                 <select
                   value={parentId === null ? "" : parentId}
                   onChange={(e) =>
@@ -399,10 +396,7 @@ export default function TaskDetailPage() {
               </AsideSection>
 
               {/* Start Date */}
-              <AsideSection
-                icon={<Calendar size={13} />}
-                title="Start Date"
-              >
+              <AsideSection icon={<Calendar size={13} />} title="Start Date">
                 <input
                   type="date"
                   value={startDate}

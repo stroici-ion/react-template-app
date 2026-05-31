@@ -8,9 +8,16 @@ import { Input } from "./UI/Input";
 import PrimaryButton from "./UI/PrimaryButton";
 
 const COLOR_OPTIONS = [
-  "#6366f1", "#3b82f6", "#10b981", "#f59e0b",
-  "#ef4444", "#8b5cf6", "#ec4899", "#f97316",
-  "#14b8a6", "#64748b",
+  "#6366f1",
+  "#3b82f6",
+  "#10b981",
+  "#f59e0b",
+  "#ef4444",
+  "#8b5cf6",
+  "#ec4899",
+  "#f97316",
+  "#14b8a6",
+  "#64748b",
 ];
 
 interface ProjectFormModalProps {
@@ -19,11 +26,17 @@ interface ProjectFormModalProps {
   onSuccess?: (project: Project) => void;
 }
 
-export default function ProjectFormModal({ project, onClose, onSuccess }: ProjectFormModalProps) {
+export default function ProjectFormModal({
+  project,
+  onClose,
+  onSuccess,
+}: ProjectFormModalProps) {
   const dispatch = useAppDispatch();
   const [name, setName] = useState(project?.name ?? "");
   const [description, setDescription] = useState(project?.description ?? "");
-  const [colorCode, setColorCode] = useState(project?.colorCode ?? COLOR_OPTIONS[0]);
+  const [colorCode, setColorCode] = useState(
+    project?.colorCode ?? COLOR_OPTIONS[0],
+  );
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -40,10 +53,15 @@ export default function ProjectFormModal({ project, onClose, onSuccess }: Projec
       let result: Project;
       if (isEdit) {
         result = await dispatch(
-          updateProject({ id: project.id, changes: { name, description, colorCode } }),
+          updateProject({
+            id: project.id,
+            changes: { name, description, colorCode },
+          }),
         ).unwrap();
       } else {
-        result = await dispatch(createProject({ name, description, colorCode })).unwrap();
+        result = await dispatch(
+          createProject({ name, description, colorCode }),
+        ).unwrap();
       }
       onSuccess?.(result);
       onClose();
@@ -109,7 +127,7 @@ export default function ProjectFormModal({ project, onClose, onSuccess }: Projec
                   <button
                     key={c}
                     onClick={() => setColorCode(c)}
-                    className={`h-7 w-7 rounded-full transition-transform hover:scale-110 ${colorCode === c ? "ring-2 ring-offset-2 ring-gray-400" : ""}`}
+                    className={`h-7 w-7 rounded-full transition-transform hover:scale-110 ${colorCode === c ? "ring-2 ring-gray-400 ring-offset-2" : ""}`}
                     style={{ backgroundColor: c }}
                   />
                 ))}
@@ -118,8 +136,17 @@ export default function ProjectFormModal({ project, onClose, onSuccess }: Projec
           </div>
 
           <div className="mt-6 flex justify-end gap-2">
-            <PrimaryButton text="Cancel" outline color="gray" onClick={onClose} />
-            <PrimaryButton text={isEdit ? "Save Changes" : "Create Project"} onClick={handleSubmit} loading={submitting} />
+            <PrimaryButton
+              text="Cancel"
+              outline
+              color="gray"
+              onClick={onClose}
+            />
+            <PrimaryButton
+              text={isEdit ? "Save Changes" : "Create Project"}
+              onClick={handleSubmit}
+              loading={submitting}
+            />
           </div>
         </Card>
       </div>

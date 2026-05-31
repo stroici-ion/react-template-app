@@ -15,7 +15,7 @@ const ContextMenu: React.FC<ContextMenuProps> = ({
   enableOverlay = false,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
-  const [hasMounted, setHasMounted] = useState(false)
+  const [hasMounted, setHasMounted] = useState(false);
   const [coords, setCoords] = useState({ top: 0, left: 0, width: 0 });
 
   const triggerRef = useRef<HTMLDivElement>(null);
@@ -23,7 +23,7 @@ const ContextMenu: React.FC<ContextMenuProps> = ({
 
   // Ensure createPortal only runs on the client to prevent SSR hydration errors
   useEffect(() => {
-      setHasMounted(true);
+    setHasMounted(true);
   }, []);
 
   const toggleMenu = () => setIsOpen((prev) => !prev);

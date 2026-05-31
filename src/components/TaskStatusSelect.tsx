@@ -9,32 +9,32 @@ const STATUS_OPTIONS: {
   label: string;
   icon: React.ReactNode;
 }[] = [
-    {
-      value: Status.Backlog,
-      label: "Backlog",
-      icon: <Archive size={14} className="text-gray-400" />,
-    },
-    {
-      value: Status.Todo,
-      label: "Todo",
-      icon: <Circle size={14} className="text-gray-500" />,
-    },
-    {
-      value: Status.InProgress,
-      label: "In Progress",
-      icon: <Clock size={14} className="text-yellow-500" />,
-    },
-    {
-      value: Status.Closed,
-      label: "Closed",
-      icon: <CheckCircle2 size={14} className="text-green-500" />,
-    },
-    {
-      value: Status.Cancelled,
-      label: "Cancelled",
-      icon: <XCircle size={14} className="text-red-400" />,
-    },
-  ];
+  {
+    value: Status.Backlog,
+    label: "Backlog",
+    icon: <Archive size={14} className="text-gray-400" />,
+  },
+  {
+    value: Status.Todo,
+    label: "Todo",
+    icon: <Circle size={14} className="text-gray-500" />,
+  },
+  {
+    value: Status.InProgress,
+    label: "In Progress",
+    icon: <Clock size={14} className="text-yellow-500" />,
+  },
+  {
+    value: Status.Closed,
+    label: "Closed",
+    icon: <CheckCircle2 size={14} className="text-green-500" />,
+  },
+  {
+    value: Status.Cancelled,
+    label: "Cancelled",
+    icon: <XCircle size={14} className="text-red-400" />,
+  },
+];
 
 function currentIcon(status: TaskStatus, size = 18) {
   switch (status) {
@@ -105,7 +105,7 @@ export default function TaskStatusSelect({
       <ContextMenu
         triggerElement={
           <button
-            className="flex cursor-pointer items-center p-1 rounded-md text-gray-400 hover:text-gray-600 hover:bg-gray-200 dark:hover:bg-gray-950"
+            className="flex cursor-pointer items-center rounded-md p-1 text-gray-400 hover:bg-gray-200 hover:text-gray-600 dark:hover:bg-gray-950"
             title="Change status"
           >
             {currentIcon(status)}

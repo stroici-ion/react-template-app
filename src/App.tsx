@@ -87,7 +87,10 @@ function App() {
         <Route path="/home" element={<Home />} />
         <Route path="/projects" element={<Projects />} />
         <Route path="/projects/:id" element={<ProjectDetail />} />
-        <Route path="/projects/:id/tasks/:taskId" element={<TaskDetailPage />} />
+        <Route
+          path="/projects/:id/tasks/:taskId"
+          element={<TaskDetailPage />}
+        />
 
         {renderRoutes(routes.public)}
         {renderRoutes(routes.authorized)}

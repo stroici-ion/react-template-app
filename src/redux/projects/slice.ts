@@ -56,7 +56,10 @@ const projectsSlice = createSlice({
         const { projectId, members } = action.payload;
         const project = state.entities[projectId];
         if (project) {
-          projectsAdapter.updateOne(state, { id: projectId, changes: { members } });
+          projectsAdapter.updateOne(state, {
+            id: projectId,
+            changes: { members },
+          });
         }
       })
       .addCase(addProjectMember.fulfilled, (state, action) => {
@@ -74,8 +77,13 @@ const projectsSlice = createSlice({
         const { projectId, member } = action.payload;
         const project = state.entities[projectId];
         if (project && project.members) {
-          const members = project.members.map((m) => (m.id === member.id ? member : m));
-          projectsAdapter.updateOne(state, { id: projectId, changes: { members } });
+          const members = project.members.map((m) =>
+            m.id === member.id ? member : m,
+          );
+          projectsAdapter.updateOne(state, {
+            id: projectId,
+            changes: { members },
+          });
         }
       })
       .addCase(removeProjectMember.fulfilled, (state, action) => {

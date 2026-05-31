@@ -7,7 +7,13 @@ import { CSS } from "@dnd-kit/utilities";
 import clsx from "clsx";
 import { useEffect, useRef, useState } from "react";
 import { DayPicker } from "react-day-picker";
-import { MoreVertical, Pencil, Trash2, Calendar, ExternalLink } from "lucide-react";
+import {
+  MoreVertical,
+  Pencil,
+  Trash2,
+  Calendar,
+  ExternalLink,
+} from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../redux/hooks";
 import {
@@ -233,7 +239,10 @@ export const TaskItem = ({
             </div>
 
             <div className="hidden items-center gap-2 sm:flex">
-              <InlineAssigneePicker taskId={taskId} projectId={task.projectId} />
+              <InlineAssigneePicker
+                taskId={taskId}
+                projectId={task.projectId}
+              />
               <div onClick={(e) => e.stopPropagation()}>
                 {task.dueDate ? (
                   <div

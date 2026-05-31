@@ -86,7 +86,9 @@ export const EditTaskModal = ({ taskId, onClose }: EditTaskModalProps) => {
   };
 
   const handleRemoveAssignee = (user: User) => {
-    setPendingAssigneeIds((prev) => prev.filter((id) => id !== Number(user.id)));
+    setPendingAssigneeIds((prev) =>
+      prev.filter((id) => id !== Number(user.id)),
+    );
     setPendingAssignees((prev) => prev.filter((u) => u.id !== user.id));
   };
 

@@ -62,30 +62,33 @@ export default function ProjectDetail() {
   const adminMenuOptions = [
     ...(isAdmin
       ? [
-        {
-          icon: <Pencil size={15} />,
-          title: "Edit Project",
-          color: "text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-900/30",
-          onClick: () => setShowEdit(true),
-        },
-      ]
+          {
+            icon: <Pencil size={15} />,
+            title: "Edit Project",
+            color:
+              "text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-900/30",
+            onClick: () => setShowEdit(true),
+          },
+        ]
       : []),
     ...(isCreator
       ? [
-        {
-          icon: <Trash2 size={15} />,
-          title: "Delete Project",
-          color: "text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30",
-          onClick: handleDelete,
-        },
-      ]
+          {
+            icon: <Trash2 size={15} />,
+            title: "Delete Project",
+            color:
+              "text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30",
+            onClick: handleDelete,
+          },
+        ]
       : []),
   ];
 
   const tabClass = (t: Tab) =>
-    `px-4 py-2 text-sm font-medium border-b-2 transition-colors ${tab === t
-      ? "border-indigo-600 text-indigo-600 dark:border-indigo-400 dark:text-indigo-400"
-      : "border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+    `px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
+      tab === t
+        ? "border-indigo-600 text-indigo-600 dark:border-indigo-400 dark:text-indigo-400"
+        : "border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
     }`;
 
   return (

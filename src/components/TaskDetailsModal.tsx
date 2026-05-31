@@ -1,1 +1,5 @@
-export { EditTaskModal as TaskDetailsModal, EditTaskModal, default } from "./EditTaskModal";
+export {
+  EditTaskModal as TaskDetailsModal,
+  EditTaskModal,
+  default,
+} from "./EditTaskModal";
