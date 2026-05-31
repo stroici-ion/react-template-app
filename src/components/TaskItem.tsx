@@ -7,28 +7,21 @@ import { CSS } from "@dnd-kit/utilities";
 import clsx from "clsx";
 import { useEffect, useRef, useState } from "react";
 import { DayPicker } from "react-day-picker";
-import {
-  MoreVertical,
-  Pencil,
-  Trash2,
-  Calendar,
-  Info,
-  Plus,
-} from "lucide-react";
+import { MoreVertical, Pencil, Trash2, Calendar, ExternalLink } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../redux/hooks";
 import {
   selectSubtasksByParentId,
   selectTaskById,
 } from "../redux/tasks/selectors";
-import { createTask, deleteTask, updateTask } from "../redux/tasks/asyncThunks";
-import { Status, type TaskStatus } from "../redux/tasks/types";
-import { CheckButton } from "./UI/CheckButton";
+import { deleteTask, updateTask } from "../redux/tasks/asyncThunks";
 import ContextMenu from "./UI/ContextMenu";
 import MenuOptions from "./UI/MenuOptions";
-import TaskDetailsModal from "./TaskDetailsModal";
-import PrimaryButton from "./UI/PrimaryButton";
+import EditTaskModal from "./EditTaskModal";
 import { AddNewTask } from "./AddNewTask";
-import { TaskStatusButton } from "./TaskStatus";
+import TaskStatusSelect from "./TaskStatusSelect";
+import TextButton from "./UI/TextButton";
+import InlineAssigneePicker from "./InlineAssigneePicker";
 
 const colorVariants: Record<string, string> = {
   slate:
@@ -63,6 +56,7 @@ export const TaskItem = ({
   onToggleExpand,
 }: TaskItemProps) => {
   const dispatch = useAppDispatch();
+  const navigate = useNavigate();
   const task = useAppSelector((state) => selectTaskById(state, taskId));
   const subtasks = useAppSelector((state) =>
     selectSubtasksByParentId(state, taskId),
@@ -74,7 +68,7 @@ export const TaskItem = ({
   const [isRenaming, setIsRenaming] = useState(false);
   const [renameValue, setRenameValue] = useState("");
   const [showDatePicker, setShowDatePicker] = useState(false);
-  const [showDetails, setShowDetails] = useState(false);
+  const [showEdit, setShowEdit] = useState(false);
   const datePickerRef = useRef<HTMLDivElement>(null);
   const renameInputRef = useRef<HTMLInputElement>(null);
 
@@ -146,49 +140,51 @@ export const TaskItem = ({
     setShowDatePicker(false);
   };
 
+  const handleOpenDetail = () => {
+    navigate(`/projects/${task.projectId}/tasks/${task.id}`);
+  };
+
   const menuOptions = [
     {
-      icon: <Info size={16} />,
-      title: "Details",
-      backgroundHover: "#f1f1f1",
-      onClick: () => setShowDetails(true),
+      icon: <ExternalLink size={16} />,
+      title: "Open Detail",
+      onClick: handleOpenDetail,
+    },
+    {
+      icon: <Pencil size={16} />,
+      title: "Edit",
+      onClick: () => setShowEdit(true),
     },
     {
       icon: <Pencil size={16} />,
       title: "Rename",
-      backgroundHover: "#f1f1f1",
       onClick: startRename,
     },
     {
       icon: <Calendar size={16} />,
       title: "Set Due Date",
-      backgroundHover: "#f1f1f1",
       onClick: () => setShowDatePicker(true),
     },
     {
       icon: <Trash2 size={16} />,
       title: "Delete",
-      color: "#ef4444",
-      iconColor: "#b91c1c",
-      backgroundHover: "#fee2e2",
+      color: "text-red-500 hover:bg-red-50 hover:dark:bg-red-900/20",
       onClick: handleDelete,
     },
   ];
 
-  const getNextStatus = (current: TaskStatus): TaskStatus => {
-    if (current === Status.Todo) return Status.InProgress;
-    if (current === Status.InProgress) return Status.Done;
-    return Status.Todo;
-  };
-
   return (
-    <div ref={setNodeRef} style={style} className="relative">
+    <div ref={setNodeRef} style={style} className="relative cursor-pointer">
       <div className={clsx("rounded-lg px-3 py-2", colorVariants[color])}>
-        <div className="flex items-center">
+        <div
+          className="flex items-center"
+          onClick={() => !isRenaming && handleOpenDetail()}
+        >
           <div
             {...attributes}
             {...listeners}
             className="cursor-grab pr-2 text-gray-400 hover:text-gray-600"
+            onClick={(e) => e.stopPropagation()}
           >
             ⠿
           </div>
@@ -205,25 +201,15 @@ export const TaskItem = ({
                 {isExpanded ? "▾" : "▸"}
               </button>
             </div>
-
-            <TaskStatusButton
-              status={task.status}
-              onChange={() =>
-                dispatch(
-                  updateTask({
-                    id: task.id,
-                    changes: {
-                      status: getNextStatus(task.status),
-                    },
-                  }),
-                )
-              }
-            />
-
-            <div
-              className="flex-1 cursor-pointer"
-              onClick={() => !isRenaming && onToggleExpand(taskId)}
-            >
+            <div onClick={(e) => e.stopPropagation()}>
+              <TaskStatusSelect
+                status={task.status}
+                onChange={(status) =>
+                  dispatch(updateTask({ id: task.id, changes: { status } }))
+                }
+              />
+            </div>
+            <div className="flex-1">
               {isRenaming ? (
                 <input
                   ref={renameInputRef}
@@ -239,36 +225,51 @@ export const TaskItem = ({
                 />
               ) : (
                 <h4
-                  className={`text-sm ${task.status === "done" ? "text-gray-400 line-through" : "font-medium text-gray-700 dark:text-gray-200"}`}
+                  className={`text-sm ${task.status === "closed" || task.status === "cancelled" ? "text-gray-400 line-through" : "font-medium text-gray-700 dark:text-gray-200"}`}
                 >
                   {task.title}
                 </h4>
               )}
             </div>
 
-            {task.dueDate && (
-              <div className="flex items-center gap-2 rounded-full bg-white px-2 py-0.5 text-[10px] text-gray-500 dark:bg-gray-800">
-                <Calendar size={12} />
-                {new Date(task.dueDate).toLocaleDateString()}
-              </div>
-            )}
-
-            <ContextMenu
-              maxWidth="200px"
-              triggerElement={
-                <button className="cursor-pointer rounded p-1 text-gray-400 hover:bg-gray-200 hover:text-gray-700 dark:hover:bg-gray-700">
-                  <MoreVertical size={16} />
-                </button>
-              }
-              body={<MenuOptions options={menuOptions} />}
-            />
+            <InlineAssigneePicker taskId={taskId} projectId={task.projectId} />
+            <div onClick={(e) => e.stopPropagation()}>
+              {task.dueDate ? (
+                <div
+                  className="cursor pointer flex items-center gap-2 rounded-full bg-white px-2 py-0.5 text-[11px] text-gray-400 dark:bg-gray-800"
+                  onClick={() => setShowDatePicker((state) => !state)}
+                >
+                  <Calendar size={12} />
+                  {new Date(task.dueDate).toLocaleDateString()}
+                </div>
+              ) : (
+                <TextButton
+                  size="xs"
+                  text="Set due date"
+                  icon={<Calendar size={12} />}
+                  onClick={() => setShowDatePicker((state) => !state)}
+                />
+              )}
+            </div>
+            <div onClick={(e) => e.stopPropagation()}>
+              <ContextMenu
+                maxWidth="200px"
+                triggerElement={
+                  <button className="cursor-pointer rounded p-1 text-gray-400 hover:bg-gray-200 hover:text-gray-200 dark:hover:bg-gray-800">
+                    <MoreVertical size={16} />
+                  </button>
+                }
+                body={<MenuOptions options={menuOptions} />}
+              />
+            </div>
           </div>
         </div>
 
         {showDatePicker && (
           <div
             ref={datePickerRef}
-            className="absolute right-2 top-12 z-50 rounded-md border border-gray-200 bg-white p-2 shadow-xl dark:border-gray-700 dark:bg-gray-800"
+            className="absolute right-2 top-12 z-50 rounded-md border border-gray-200 bg-white p-2 shadow-xl dark:border-gray-700 dark:bg-gray-600 dark:text-white"
+            onClick={(e) => e.stopPropagation()}
           >
             <DayPicker
               mode="single"
@@ -312,11 +313,8 @@ export const TaskItem = ({
         )}
       </div>
 
-      {showDetails && (
-        <TaskDetailsModal
-          taskId={task.id}
-          onClose={() => setShowDetails(false)}
-        />
+      {showEdit && (
+        <EditTaskModal taskId={task.id} onClose={() => setShowEdit(false)} />
       )}
     </div>
   );

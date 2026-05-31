@@ -10,6 +10,8 @@ import {
   updateTask,
   deleteTask,
   reorderTasks,
+  addTaskAssignee,
+  removeTaskAssignee,
 } from "./asyncThunks";
 
 // 2. Initialize the Adapter
@@ -48,12 +50,13 @@ const tasksSlice = createSlice({
       })
       .addCase(fetchTasks.fulfilled, (state, action) => {
         state.loading = false;
-        tasksAdapter.setAll(state, action.payload);
-        state.topLevelOrder = action.payload
+        const tasks = action.payload.tasks;
+        tasksAdapter.setAll(state, tasks);
+        state.topLevelOrder = tasks
           .filter((t: any) => t.parentId === null)
           .map((t: any) => t.id);
         const subtaskOrders: Record<number, number[]> = {};
-        for (const t of action.payload as any[]) {
+        for (const t of tasks as any[]) {
           if (t.parentId !== null) {
             (subtaskOrders[t.parentId] ||= []).push(t.id);
           }
@@ -126,13 +129,8 @@ const tasksSlice = createSlice({
         }
       })
       .addCase(reorderTasks.rejected, (state, action) => {
-        // Roll back the affected list to its previous order
         const payload = action.payload as
-          | {
-              previousOrder: number[];
-              parentId: number | null;
-              error: string;
-            }
+          | { previousOrder: number[]; parentId: number | null; error: string }
           | undefined;
         if (payload) {
           if (payload.parentId === null) {
@@ -142,6 +140,14 @@ const tasksSlice = createSlice({
           }
           state.error = payload.error;
         }
+      })
+      .addCase(addTaskAssignee.fulfilled, (state, action) => {
+        const { id, assigneeIds } = action.payload;
+        tasksAdapter.updateOne(state, { id, changes: { assigneeIds } });
+      })
+      .addCase(removeTaskAssignee.fulfilled, (state, action) => {
+        const { id, assigneeIds } = action.payload;
+        tasksAdapter.updateOne(state, { id, changes: { assigneeIds } });
       });
   },
 });

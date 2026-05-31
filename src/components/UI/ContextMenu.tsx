@@ -1,6 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
 import { createPortal } from "react-dom";
-import { useClickOutside } from "../../hooks/useClickOutside";
 
 interface ContextMenuProps {
   triggerElement: React.ReactNode;
@@ -16,7 +15,7 @@ const ContextMenu: React.FC<ContextMenuProps> = ({
   enableOverlay = false,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
-  const [mounted, setMounted] = useState(false);
+  const [hasMounted, setHasMounted] = useState(false)
   const [coords, setCoords] = useState({ top: 0, left: 0, width: 0 });
 
   const triggerRef = useRef<HTMLDivElement>(null);
@@ -24,7 +23,7 @@ const ContextMenu: React.FC<ContextMenuProps> = ({
 
   // Ensure createPortal only runs on the client to prevent SSR hydration errors
   useEffect(() => {
-    setMounted(true);
+      setHasMounted(true);
   }, []);
 
   const toggleMenu = () => setIsOpen((prev) => !prev);
@@ -79,36 +78,29 @@ const ContextMenu: React.FC<ContextMenuProps> = ({
     <>
       {enableOverlay && (
         <div
-          className="fixed inset-0 cursor-default bg-black/40"
-          style={{ zIndex: 9998 }}
+          className="z-9998 fixed inset-0 cursor-default bg-black/40"
           onClick={() => setIsOpen(false)}
         />
       )}
 
-      {/* 
-        This invisible wrapper anchors to the exact coordinates of the trigger.
-        By setting its width to the trigger's width, the "absolute right-0" on the 
-        child acts exactly like it did in your original code.
-      */}
       <div
+        className="z-9999 absolute"
         style={{
-          position: "absolute",
           top: coords.top,
           left: coords.left,
           width: coords.width,
-          zIndex: 9999,
         }}
       >
         <div
           ref={menuRef}
-          onClick={() => setIsOpen(false)}
-          className="absolute right-0 mt-2 rounded-md border border-gray-200 bg-white shadow-xl"
+          className="absolute right-0 mt-2 rounded-md border border-gray-200 bg-white shadow-xl dark:border-gray-700 dark:bg-gray-800 dark:text-white"
           style={{
             maxWidth: maxWidth,
             minWidth: "190px",
           }}
+          onClick={() => setIsOpen(false)}
         >
-          <div className="py-1">{body}</div>
+          <div>{body}</div>
         </div>
       </div>
     </>
@@ -124,7 +116,7 @@ const ContextMenu: React.FC<ContextMenuProps> = ({
         <div className="cursor-pointer">{triggerElement}</div>
       </div>
 
-      {mounted && isOpen && createPortal(portalContent, document.body)}
+      {hasMounted && isOpen && createPortal(portalContent, document.body)}
     </>
   );
 };

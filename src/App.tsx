@@ -2,6 +2,9 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Home from "./pages/Home";
+import Projects from "./pages/Projects";
+import ProjectDetail from "./pages/ProjectDetail";
+import TaskDetailPage from "./pages/TaskDetailPage";
 import { useLayoutEffect } from "react";
 import { useAppDispatch, useAppSelector } from "./redux/hooks";
 import { fetchMe } from "./redux/auth/asyncThunks";
@@ -82,6 +85,9 @@ function App() {
       <Routes>
         <Route path="/" element={<Navigate to="/home" replace />} />
         <Route path="/home" element={<Home />} />
+        <Route path="/projects" element={<Projects />} />
+        <Route path="/projects/:id" element={<ProjectDetail />} />
+        <Route path="/projects/:id/tasks/:taskId" element={<TaskDetailPage />} />
 
         {renderRoutes(routes.public)}
         {renderRoutes(routes.authorized)}

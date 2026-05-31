@@ -1,12 +1,11 @@
+import clsx from "clsx";
 import React from "react";
 
 interface MenuOption {
   icon?: React.ReactNode;
   title: string;
   subtitle?: string;
-  color?: string; // Text color
-  background?: string;
-  backgroundHover?: string;
+  color?: string;
   iconColor?: string;
   onClick: () => void;
 }
@@ -19,40 +18,21 @@ const MenuOptions: React.FC<MenuOptionsProps> = ({ options }) => {
   return (
     <div className="flex w-full flex-col overflow-hidden rounded-md">
       {options.map((option, index) => {
-        // Fallback: iconColor defaults to text color (color) if not provided
-        const finalIconColor = option.iconColor || option.color || "inherit";
-
         return (
           <button
             key={index}
             onClick={() => option.onClick()}
-            className="group flex w-full cursor-pointer items-center px-3 py-3 text-left transition-colors duration-200"
-            style={{
-              backgroundColor: option.background || "transparent",
-              color: option.color || "#374151", // Default gray-700
-            }}
-            // Note: For dynamic hover backgrounds that aren't in Tailwind's registry,
-            // we use onMouseEnter/Leave or standard CSS.
-            onMouseEnter={(e) => {
-              if (option.backgroundHover)
-                e.currentTarget.style.backgroundColor = option.backgroundHover;
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.backgroundColor =
-                option.background || "transparent";
-            }}
+            className={clsx(
+              `group flex w-full cursor-pointer items-center px-3 py-3 text-left transition-colors duration-200`,
+              `${option.color ? option.color : "text-gray-800 hover:bg-gray-50 dark:text-gray-100 hover:dark:bg-gray-900"}`,
+            )}
           >
-            {/* Icon Slot */}
             {option.icon && (
-              <div
-                className="mr-3 flex-shrink-0"
-                style={{ color: finalIconColor }}
-              >
+              <div className={`mr-3 flex-shrink-0 ${option.iconColor}`}>
                 {option.icon}
               </div>
             )}
 
-            {/* Text Content */}
             <div className="flex flex-col overflow-hidden">
               <span className="truncate text-sm font-semibold">
                 {option.title}

@@ -1,13 +1,13 @@
-import { useNavigate } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../redux/hooks";
-import { logoutAllDevices, logoutUser } from "../redux/auth/asyncThunks";
+import { logoutUser } from "../redux/auth/asyncThunks";
 import { Logo } from "./Logo";
 import { UserInfo } from "./UserInfo";
 import { selectAuth } from "../redux/auth/selectors";
 import ContextMenu from "./UI/ContextMenu";
 import MenuOptions from "./UI/MenuOptions";
 import ThemeToggle from "./UI/ThemeToggle";
-import { LogOut, Settings } from "lucide-react";
+import { FolderKanban, Home, LogOut, Settings } from "lucide-react";
 
 export function Header() {
   const dispatch = useAppDispatch();
@@ -18,12 +18,19 @@ export function Header() {
     try {
       await dispatch(logoutUser()).unwrap();
       navigate("/auth/login");
-    } catch (error) {
-      console.error("Logout failed:", error);
+    } catch {
+      // ignore
     }
   };
 
   const handleLogin = () => navigate("/auth/login");
+
+  const navLinkClass = ({ isActive }: { isActive: boolean }) =>
+    `flex items-center gap-1.5 text-sm font-medium transition-colors ${
+      isActive
+        ? "text-indigo-600 dark:text-indigo-400"
+        : "text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white"
+    }`;
 
   const userMenuOptions = [
     {
@@ -47,6 +54,17 @@ export function Header() {
     <header className="sticky top-0 z-50 border-b border-gray-200 bg-white px-6 py-4 shadow-lg dark:border-gray-700 dark:bg-gray-800">
       <nav className="mx-auto flex max-w-7xl items-center justify-between">
         <Logo />
+
+        {isAuthenticated && (
+          <nav className="flex items-center gap-5">
+            <NavLink to="/home" className={navLinkClass}>
+              <Home size={16} /> Home
+            </NavLink>
+            <NavLink to="/projects" className={navLinkClass}>
+              <FolderKanban size={16} /> Projects
+            </NavLink>
+          </nav>
+        )}
 
         <div className="flex items-center gap-6">
           <ThemeToggle />

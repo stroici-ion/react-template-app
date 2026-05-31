@@ -14,7 +14,6 @@ import {
 import { Header } from "../components/Header";
 import { useTheme } from "../hooks/useTheme";
 import Title from "../components/UI/Title";
-import { TaskList } from "./TaskList";
 
 // --- Sample Mock Data ---
 const processingData = [
@@ -50,7 +49,6 @@ export default function Home() {
       <Header />
       {/* 4. Main Content Area */}
       <main className="mx-auto max-w-7xl space-y-10 p-6 md:p-10">
-        <TaskList projectId={1} />
         {/* Welcome Banner */}
         <header className="rounded-2xl border border-gray-200 bg-white p-8 shadow-xl dark:border-gray-700 dark:bg-gray-800">
           <Title text="Data Processing Pipeline" />

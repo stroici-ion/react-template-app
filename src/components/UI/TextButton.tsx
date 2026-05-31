@@ -13,6 +13,7 @@ interface BaseButtonProps {
   className?: string;
   type?: "button" | "submit" | "reset";
   loading?: boolean;
+  size?: "xs" | "sm" | "md" | "lg";
 }
 
 type ButtonProps = BaseButtonProps &
@@ -74,17 +75,26 @@ const TextButton: React.FC<ButtonProps> = ({
   className = "",
   type = "button",
   loading = false,
+  size = "md",
 }) => {
   const baseStyles =
-    "inline-flex items-center justify-center gap-1.5 transition-all duration-200 cursor-pointer bg-transparent border-none p-0 outline-none hover:opacity-80";
+    "inline-flex items-center justify-center transition-all duration-200 cursor-pointer bg-transparent border-none p-0 outline-none hover:opacity-80";
 
   const dynamicColorStyles =
     colorVariants[color]?.[colorIntensity] || colorVariants["blue"]["soft"];
+
+  const sizeVariants: Record<string, string> = {
+    xs: "gap-1 text-xs",
+    sm: "gap-1 text-sm",
+    md: "gap-1.5 text-sm semibold",
+    lg: "gap-2 text-md semibold",
+  };
 
   const combinedClasses = clsx(
     baseStyles,
     dynamicColorStyles,
     loading && "opacity-50 pointer-events-none",
+    sizeVariants[size],
     className,
   );
 
