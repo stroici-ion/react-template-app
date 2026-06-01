@@ -5,6 +5,7 @@ import {
 } from "@reduxjs/toolkit";
 import type { Task } from "./types";
 import {
+  fetchAllTasks,
   fetchTasks,
   createTask,
   updateTask,
@@ -45,6 +46,24 @@ const tasksSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
+      .addCase(fetchAllTasks.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(fetchAllTasks.fulfilled, (state, action) => {
+        state.loading = false;
+        const tasks = action.payload.tasks;
+        tasksAdapter.setAll(state, tasks);
+        state.topLevelOrder = tasks
+          .filter((t: any) => t.parentId === null)
+          .map((t: any) => t.id);
+        const subtaskOrders: Record<number, number[]> = {};
+        for (const t of tasks as any[]) {
+          if (t.parentId !== null) {
+            (subtaskOrders[t.parentId] ||= []).push(t.id);
+          }
+        }
+        state.subtaskOrders = subtaskOrders;
+      })
       .addCase(fetchTasks.pending, (state) => {
         state.loading = true;
       })
