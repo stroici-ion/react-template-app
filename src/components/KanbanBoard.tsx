@@ -21,27 +21,32 @@ const COLUMNS: { key: TaskStatus; label: string; color: string }[] = [
   {
     key: Status.Backlog,
     label: "Backlog",
-    color: "bg-gray-100 dark:bg-gray-900 border-1 border-gray-900",
+    color:
+      "bg-gray-100 dark:bg-gray-900 border-1 border-gray-100 dark:border-gray-900",
   },
   {
     key: Status.Todo,
     label: "Todo",
-    color: "bg-gray-100 dark:bg-gray-900 border-1 border-blue-900",
+    color:
+      "bg-gray-100 dark:bg-gray-900 border-1 border-blue-100 dark:border-blue-900",
   },
   {
     key: Status.InProgress,
     label: "In Progress",
-    color: "bg-gray-100 dark:bg-gray-900 border-1 border-yellow-900",
+    color:
+      "bg-gray-100 dark:bg-gray-900 border-1 border-yellow-100 dark:border-yellow-900",
   },
   {
     key: Status.Closed,
     label: "Closed",
-    color: "bg-gray-100 dark:bg-gray-900 border-1 border-green-900",
+    color:
+      "bg-gray-100 dark:bg-gray-900 border-1 border-green-100 dark:border-green-900",
   },
   {
     key: Status.Cancelled,
     label: "Cancelled",
-    color: "bg-gray-100 dark:bg-gray-900 border-1 border-red-900",
+    color:
+      "bg-gray-100 dark:bg-gray-900 border-1 border-red-100 dark:border-red-900",
   },
 ];
 
@@ -70,9 +75,7 @@ function KanbanCard({
 
   return (
     <div
-      onClick={() =>
-        navigate(`/projects/${task.projectId}/tasks/${task.id}`)
-      }
+      onClick={() => navigate(`/projects/${task.projectId}/tasks/${task.id}`)}
       className={`group cursor-pointer rounded-lg border border-gray-200 bg-white p-3 shadow-sm transition-shadow hover:shadow-md dark:border-gray-700 dark:bg-gray-700 ${isDragging ? "opacity-50" : ""}`}
     >
       <div className="flex items-start gap-2">
@@ -232,7 +235,7 @@ export default function KanbanBoard({
       onDragEnd={handleDragEnd}
       onDragCancel={() => setActiveTask(null)}
     >
-      <div className="mb-3 flex justify-end gap-2">
+      <div className="mb-3 flex flex-wrap justify-end gap-2">
         <button
           onClick={() => setShowClosed((v) => !v)}
           className="flex items-center gap-1.5 rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-xs font-medium text-gray-500 shadow-sm hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700"

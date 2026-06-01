@@ -5,15 +5,17 @@ import { useAppDispatch, useAppSelector } from "../redux/hooks";
 import { deleteProject, fetchProject } from "../redux/projects/asyncThunks";
 import { selectProjectById } from "../redux/projects/selectors";
 import { selectAuth } from "../redux/auth/selectors";
-import { Header } from "../components/Header";
+import { selectAllTasks } from "../redux/tasks/selectors";
+import { fetchTasks } from "../redux/tasks/asyncThunks";
 import { TaskList } from "./TaskList";
 import MembersList from "../components/MembersList";
 import ProjectFormModal from "../components/ProjectFormModal";
 import ContextMenu from "../components/UI/ContextMenu";
 import MenuOptions from "../components/UI/MenuOptions";
 import { fetchUsers } from "../redux/users/asyncThunks";
+import Timeline from "../components/Timeline";
 
-type Tab = "tasks" | "members";
+type Tab = "tasks" | "members" | "timeline";
 
 export default function ProjectDetail() {
   const { id } = useParams<{ id: string }>();
@@ -24,6 +26,7 @@ export default function ProjectDetail() {
     selectProjectById(state, projectId),
   );
   const { user } = useAppSelector(selectAuth);
+  const allTasks = useAppSelector(selectAllTasks);
   const [tab, setTab] = useState<Tab>("tasks");
   const [showEdit, setShowEdit] = useState(false);
 
@@ -31,13 +34,13 @@ export default function ProjectDetail() {
     if (projectId) {
       dispatch(fetchProject(projectId));
       dispatch(fetchUsers({ projectId }));
+      dispatch(fetchTasks({ projectId }));
     }
   }, [dispatch, projectId]);
 
   if (!project) {
     return (
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-        <Header />
         <div className="flex items-center justify-center py-32 text-gray-400">
           Loading…
         </div>
@@ -62,37 +65,41 @@ export default function ProjectDetail() {
   const adminMenuOptions = [
     ...(isAdmin
       ? [
-        {
-          icon: <Pencil size={15} />,
-          title: "Edit Project",
-          color: "text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-900/30",
-          onClick: () => setShowEdit(true),
-        },
-      ]
+          {
+            icon: <Pencil size={15} />,
+            title: "Edit Project",
+            color:
+              "text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-900/30",
+            onClick: () => setShowEdit(true),
+          },
+        ]
       : []),
     ...(isCreator
       ? [
-        {
-          icon: <Trash2 size={15} />,
-          title: "Delete Project",
-          color: "text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30",
-          onClick: handleDelete,
-        },
-      ]
+          {
+            icon: <Trash2 size={15} />,
+            title: "Delete Project",
+            color:
+              "text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30",
+            onClick: handleDelete,
+          },
+        ]
       : []),
   ];
 
   const tabClass = (t: Tab) =>
-    `px-4 py-2 text-sm font-medium border-b-2 transition-colors ${tab === t
-      ? "border-indigo-600 text-indigo-600 dark:border-indigo-400 dark:text-indigo-400"
-      : "border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+    `px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
+      tab === t
+        ? "border-indigo-600 text-indigo-600 dark:border-indigo-400 dark:text-indigo-400"
+        : "border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
     }`;
+
+  // Only tasks belonging to this project
+  const projectTasks = allTasks.filter((t) => t.projectId === projectId);
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      <Header />
-
-      <main className="mx-auto max-w-7xl px-6 py-8">
+      <main className="mx-auto max-w-7xl px-4 py-6 sm:px-6 sm:py-8">
         <button
           onClick={() => navigate("/projects")}
           className="mb-6 flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-100"
@@ -107,7 +114,7 @@ export default function ProjectDetail() {
               style={{ backgroundColor: project.colorCode ?? "#6366f1" }}
             />
             <div>
-              <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-50">
+              <h1 className="text-xl font-bold text-gray-900 dark:text-gray-50 sm:text-2xl">
                 {project.name}
               </h1>
               {project.description && (
@@ -140,6 +147,12 @@ export default function ProjectDetail() {
               Tasks
             </button>
             <button
+              className={tabClass("timeline")}
+              onClick={() => setTab("timeline")}
+            >
+              Timeline
+            </button>
+            <button
               className={tabClass("members")}
               onClick={() => setTab("members")}
             >
@@ -149,6 +162,10 @@ export default function ProjectDetail() {
         </div>
 
         {tab === "tasks" && <TaskList projectId={project.id} />}
+
+        {tab === "timeline" && user && (
+          <Timeline tasks={projectTasks} currentUser={user} />
+        )}
 
         {tab === "members" && (
           <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">

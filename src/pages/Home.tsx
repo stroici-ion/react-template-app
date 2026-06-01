@@ -11,7 +11,6 @@ import {
   Cell,
   Legend,
 } from "recharts";
-import { Header } from "../components/Header";
 import { useTheme } from "../hooks/useTheme";
 import Title from "../components/UI/Title";
 
@@ -45,14 +44,12 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-gray-100 font-sans text-gray-900 dark:bg-gray-900 dark:text-white">
-      {/* 1. Header / Navigation Bar */}
-      <Header />
       {/* 4. Main Content Area */}
-      <main className="mx-auto max-w-7xl space-y-10 p-6 md:p-10">
+      <main className="mx-auto max-w-7xl space-y-6 p-4 sm:space-y-10 sm:p-6 md:p-10">
         {/* Welcome Banner */}
-        <header className="rounded-2xl border border-gray-200 bg-white p-8 shadow-xl dark:border-gray-700 dark:bg-gray-800">
+        <header className="rounded-2xl border border-gray-200 bg-white p-5 shadow-xl dark:border-gray-700 dark:bg-gray-800 sm:p-8">
           <Title text="Data Processing Pipeline" />
-          <p className="max-w-3xl text-lg text-gray-600 dark:text-gray-300">
+          <p className="max-w-3xl text-base text-gray-600 dark:text-gray-300 sm:text-lg">
             Monitor, analyze, and manage your data ingestion and processing
             workflows in real-time. Total data integrity, unmatched performance.
           </p>

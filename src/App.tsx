@@ -16,6 +16,7 @@ import PersonalInformation from "./pages/PersonalInformation";
 import Security from "./pages/Security";
 import ConfirmEmail from "./pages/ConfirmEmail";
 import EmailVerification from "./pages/EmailVerification";
+import { AppLayout } from "./components/layouts/AppLayout";
 
 interface RouteConfig {
   path: string;
@@ -84,22 +85,27 @@ function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<Navigate to="/home" replace />} />
-        <Route path="/home" element={<Home />} />
-        <Route path="/projects" element={<Projects />} />
-        <Route path="/projects/:id" element={<ProjectDetail />} />
-        <Route path="/projects/:id/tasks/:taskId" element={<TaskDetailPage />} />
+
+        <Route element={<AppLayout />}>
+          <Route path="/home" element={<Home />} />
+          <Route path="/projects" element={<Projects />} />
+          <Route path="/projects/:id" element={<ProjectDetail />} />
+          <Route
+            path="/projects/:id/tasks/:taskId"
+            element={<TaskDetailPage />}
+          />
+          {renderRoutes(routes.authorized)}
+          <Route
+            path="*"
+            element={
+              <div className="flex min-h-screen items-center justify-center bg-gray-100 text-2xl text-gray-900 dark:bg-gray-900 dark:text-white">
+                404 - Page Not Found
+              </div>
+            }
+          />
+        </Route>
 
         {renderRoutes(routes.public)}
-        {renderRoutes(routes.authorized)}
-
-        <Route
-          path="*"
-          element={
-            <div className="flex min-h-screen items-center justify-center bg-gray-100 text-2xl text-gray-900 dark:bg-gray-900 dark:text-white">
-              404 - Page Not Found
-            </div>
-          }
-        />
       </Routes>
     </BrowserRouter>
   );

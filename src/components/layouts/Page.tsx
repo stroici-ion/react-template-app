@@ -33,7 +33,7 @@ const Page: React.FC<PageProps> = ({
   return (
     <div
       className={clsx(
-        "flex min-h-screen items-center justify-center transition-colors duration-200",
+        "flex min-h-screen items-center justify-center p-4 transition-colors duration-200",
         pageColorVariants[color],
         className,
       )}

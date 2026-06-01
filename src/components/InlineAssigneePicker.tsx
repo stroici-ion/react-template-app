@@ -3,7 +3,10 @@ import { UserPlus, X } from "lucide-react";
 import { useAppDispatch, useAppSelector } from "../redux/hooks";
 import { selectTaskById } from "../redux/tasks/selectors";
 import { selectProjectMemberUsers } from "../redux/projects/selectors";
-import { addTaskAssignee, removeTaskAssignee } from "../redux/tasks/asyncThunks";
+import {
+  addTaskAssignee,
+  removeTaskAssignee,
+} from "../redux/tasks/asyncThunks";
 import type { User } from "../types/user";
 
 interface InlineAssigneePickerProps {
@@ -15,10 +18,15 @@ function initials(u: User) {
   return `${u.firstName?.[0] ?? ""}${u.lastName?.[0] ?? ""}`.toUpperCase();
 }
 
-export default function InlineAssigneePicker({ taskId, projectId }: InlineAssigneePickerProps) {
+export default function InlineAssigneePicker({
+  taskId,
+  projectId,
+}: InlineAssigneePickerProps) {
   const dispatch = useAppDispatch();
   const task = useAppSelector((state) => selectTaskById(state, taskId));
-  const memberUsers = useAppSelector((state) => selectProjectMemberUsers(state, projectId));
+  const memberUsers = useAppSelector((state) =>
+    selectProjectMemberUsers(state, projectId),
+  );
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
   const containerRef = useRef<HTMLDivElement>(null);
@@ -26,7 +34,10 @@ export default function InlineAssigneePicker({ taskId, projectId }: InlineAssign
   useEffect(() => {
     if (!open) return;
     const handleClickOutside = (e: MouseEvent) => {
-      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+      if (
+        containerRef.current &&
+        !containerRef.current.contains(e.target as Node)
+      ) {
         setOpen(false);
         setQuery("");
       }
@@ -38,12 +49,16 @@ export default function InlineAssigneePicker({ taskId, projectId }: InlineAssign
   if (!task) return null;
 
   const assigneeIds = task.assigneeIds ?? [];
-  const assignedUsers = memberUsers.filter((u) => assigneeIds.includes(Number(u.id)));
+  const assignedUsers = memberUsers.filter((u) =>
+    assigneeIds.includes(Number(u.id)),
+  );
   const availableUsers = memberUsers.filter(
     (u) =>
       !assigneeIds.includes(Number(u.id)) &&
       (!query ||
-        `${u.firstName} ${u.lastName}`.toLowerCase().includes(query.toLowerCase())),
+        `${u.firstName} ${u.lastName}`
+          .toLowerCase()
+          .includes(query.toLowerCase())),
   );
 
   return (
@@ -69,17 +84,14 @@ export default function InlineAssigneePicker({ taskId, projectId }: InlineAssign
               {initials(u)}
             </span>
           )}
-          <button
-            onClick={() => dispatch(removeTaskAssignee({ taskId, userId: Number(u.id) }))}
-            className="absolute -right-1 -top-1 hidden h-3.5 w-3.5 items-center justify-center rounded-full bg-red-500 text-white group-hover:flex"
-          >
-            <X size={8} />
-          </button>
         </div>
       ))}
 
       <button
-        onClick={(e) => { e.stopPropagation(); setOpen((v) => !v); }}
+        onClick={(e) => {
+          e.stopPropagation();
+          setOpen((v) => !v);
+        }}
         className="ml-1 flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full border border-dashed border-gray-300 text-gray-400 hover:border-indigo-400 hover:text-indigo-500 dark:border-gray-600"
         title="Assign user"
       >
@@ -112,13 +124,19 @@ export default function InlineAssigneePicker({ taskId, projectId }: InlineAssign
                 <li key={u.id}>
                   <button
                     onClick={() => {
-                      dispatch(addTaskAssignee({ taskId, userId: Number(u.id) }));
+                      dispatch(
+                        addTaskAssignee({ taskId, userId: Number(u.id) }),
+                      );
                       setQuery("");
                     }}
                     className="flex w-full items-center gap-2 px-3 py-1.5 text-left text-xs hover:bg-gray-100 dark:hover:bg-gray-700"
                   >
                     {u.avatarUrl ? (
-                      <img src={u.avatarUrl} className="h-5 w-5 rounded-full object-cover" alt="" />
+                      <img
+                        src={u.avatarUrl}
+                        className="h-5 w-5 rounded-full object-cover"
+                        alt=""
+                      />
                     ) : (
                       <span className="flex h-5 w-5 items-center justify-center rounded-full bg-indigo-500 text-[9px] font-medium text-white">
                         {initials(u)}

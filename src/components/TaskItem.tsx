@@ -7,8 +7,17 @@ import { CSS } from "@dnd-kit/utilities";
 import clsx from "clsx";
 import { useEffect, useRef, useState } from "react";
 import { DayPicker } from "react-day-picker";
-import { MoreVertical, Pencil, Trash2, Calendar, ExternalLink } from "lucide-react";
+import {
+  MoreVertical,
+  Pencil,
+  Trash2,
+  Calendar,
+  ExternalLink,
+} from "lucide-react";
+import { PRIORITY_COLORS, PRIORITY_SHORT } from "../redux/tasks/types";
+import { Badge } from "./UI/Badge";
 import { useNavigate } from "react-router-dom";
+import { useAlert } from "../hooks/useAlert";
 import { useAppDispatch, useAppSelector } from "../redux/hooks";
 import {
   selectSubtasksByParentId,
@@ -57,6 +66,7 @@ export const TaskItem = ({
 }: TaskItemProps) => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
+  const alert = useAlert();
   const task = useAppSelector((state) => selectTaskById(state, taskId));
   const subtasks = useAppSelector((state) =>
     selectSubtasksByParentId(state, taskId),
@@ -204,9 +214,17 @@ export const TaskItem = ({
             <div onClick={(e) => e.stopPropagation()}>
               <TaskStatusSelect
                 status={task.status}
-                onChange={(status) =>
-                  dispatch(updateTask({ id: task.id, changes: { status } }))
-                }
+                onChange={async (status) => {
+                  try {
+                    await dispatch(
+                      updateTask({ id: task.id, changes: { status } }),
+                    ).unwrap();
+                  } catch (err: any) {
+                    alert.error(
+                      typeof err === "string" ? err : "Failed to update status",
+                    );
+                  }
+                }}
               />
             </div>
             <div className="flex-1">
@@ -232,24 +250,38 @@ export const TaskItem = ({
               )}
             </div>
 
-            <InlineAssigneePicker taskId={taskId} projectId={task.projectId} />
-            <div onClick={(e) => e.stopPropagation()}>
-              {task.dueDate ? (
-                <div
-                  className="cursor pointer flex items-center gap-2 rounded-full bg-white px-2 py-0.5 text-[11px] text-gray-400 dark:bg-gray-800"
-                  onClick={() => setShowDatePicker((state) => !state)}
-                >
-                  <Calendar size={12} />
-                  {new Date(task.dueDate).toLocaleDateString()}
+            <div className="hidden items-center gap-2 sm:flex">
+              <InlineAssigneePicker
+                taskId={taskId}
+                projectId={task.projectId}
+              />
+              {task.priority && (
+                <div onClick={(e) => e.stopPropagation()}>
+                  <Badge
+                    text={PRIORITY_SHORT[task.priority]}
+                    color={PRIORITY_COLORS[task.priority] ?? "gray"}
+                    size="xs"
+                  />
                 </div>
-              ) : (
-                <TextButton
-                  size="xs"
-                  text="Set due date"
-                  icon={<Calendar size={12} />}
-                  onClick={() => setShowDatePicker((state) => !state)}
-                />
               )}
+              <div onClick={(e) => e.stopPropagation()}>
+                {task.dueDate ? (
+                  <div
+                    className="cursor pointer flex items-center gap-2 rounded-full bg-white px-2 py-0.5 text-[11px] text-gray-400 dark:bg-gray-800"
+                    onClick={() => setShowDatePicker((state) => !state)}
+                  >
+                    <Calendar size={12} />
+                    {new Date(task.dueDate).toLocaleDateString()}
+                  </div>
+                ) : (
+                  <TextButton
+                    size="xs"
+                    text="Set due date"
+                    icon={<Calendar size={12} />}
+                    onClick={() => setShowDatePicker((state) => !state)}
+                  />
+                )}
+              </div>
             </div>
             <div onClick={(e) => e.stopPropagation()}>
               <ContextMenu

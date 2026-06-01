@@ -4,6 +4,7 @@ import {
   ArrowLeft,
   Calendar,
   CheckCircle2,
+  Flag,
   GitBranch,
   Save,
   Tag,
@@ -21,9 +22,17 @@ import {
 } from "../redux/tasks/asyncThunks";
 import { fetchProject } from "../redux/projects/asyncThunks";
 import { fetchUsers } from "../redux/users/asyncThunks";
-import { Status, type Task, type TaskStatus } from "../redux/tasks/types";
+import {
+  Priority,
+  Status,
+  type Task,
+  type TaskPriority,
+  type TaskStatus,
+  PRIORITY_LABELS,
+  PRIORITY_COLORS,
+  PRIORITY_SHORT,
+} from "../redux/tasks/types";
 import type { User } from "../types/user";
-import { Header } from "../components/Header";
 import TaskStatusSelect from "../components/TaskStatusSelect";
 import UserSearchDropdown from "../components/UserSearchDropdown";
 import PrimaryButton from "../components/UI/PrimaryButton";
@@ -104,6 +113,7 @@ export default function TaskDetailPage() {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [status, setStatus] = useState<TaskStatus>(Status.Todo);
+  const [priority, setPriority] = useState<TaskPriority | null>(null);
   const [startDate, setStartDate] = useState("");
   const [dueDate, setDueDate] = useState("");
   const [parentId, setParentId] = useState<number | null>(null);
@@ -111,6 +121,7 @@ export default function TaskDetailPage() {
   const [pendingAssignees, setPendingAssignees] = useState<User[]>([]);
   const [submitting, setSubmitting] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
 
   const formInitializedRef = useRef(false);
 
@@ -134,6 +145,7 @@ export default function TaskDetailPage() {
     setTitle(task.title);
     setDescription(task.description ?? "");
     setStatus(task.status);
+    setPriority(task.priority ?? null);
     setStartDate(toInputDate(task.startDate));
     setDueDate(toInputDate(task.dueDate));
     setParentId(task.parentId);
@@ -145,7 +157,6 @@ export default function TaskDetailPage() {
   if (!task) {
     return (
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-        <Header />
         <div className="flex items-center justify-center py-32">
           <div className="text-center">
             <div className="mb-3 text-gray-300 dark:text-gray-600">
@@ -187,13 +198,16 @@ export default function TaskDetailPage() {
   };
 
   const handleRemoveAssignee = (user: User) => {
-    setPendingAssigneeIds((prev) => prev.filter((id) => id !== Number(user.id)));
+    setPendingAssigneeIds((prev) =>
+      prev.filter((id) => id !== Number(user.id)),
+    );
     setPendingAssignees((prev) => prev.filter((u) => u.id !== user.id));
   };
 
   const handleSave = async () => {
     setSubmitting(true);
     setSaveSuccess(false);
+    setSaveError(null);
     try {
       await dispatch(
         updateTask({
@@ -202,6 +216,7 @@ export default function TaskDetailPage() {
             title,
             description,
             status,
+            priority,
             startDate: fromInputDate(startDate),
             dueDate: fromInputDate(dueDate),
             parentId,
@@ -225,8 +240,8 @@ export default function TaskDetailPage() {
 
       setSaveSuccess(true);
       setTimeout(() => setSaveSuccess(false), 2500);
-    } catch {
-      // error state could be added here
+    } catch (err: any) {
+      setSaveError(typeof err === "string" ? err : "Failed to save changes");
     } finally {
       setSubmitting(false);
     }
@@ -240,9 +255,7 @@ export default function TaskDetailPage() {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      <Header />
-
-      <main className="mx-auto max-w-7xl px-6 py-8">
+      <main className="mx-auto max-w-7xl px-4 py-6 sm:px-6 sm:py-8">
         {/* Breadcrumb */}
         <div className="mb-6 flex items-center gap-2 text-sm">
           <button
@@ -271,6 +284,12 @@ export default function TaskDetailPage() {
                   color={STATUS_COLORS[status] ?? "gray"}
                   dot
                 />
+                {priority && (
+                  <Badge
+                    text={PRIORITY_SHORT[priority]}
+                    color={PRIORITY_COLORS[priority] ?? "gray"}
+                  />
+                )}
                 {isOverdue && (
                   <Badge text="Overdue" color="red" className="ml-auto" />
                 )}
@@ -283,7 +302,7 @@ export default function TaskDetailPage() {
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
                   placeholder="Task title…"
-                  className="mb-1 w-full border-0 border-b-2 border-transparent bg-transparent pb-1 text-2xl font-bold text-gray-900 transition-colors placeholder:text-gray-300 hover:border-gray-200 focus:border-indigo-500 focus:outline-none dark:text-gray-50 dark:placeholder:text-gray-600 dark:hover:border-gray-600 dark:focus:border-indigo-400"
+                  className="mb-1 w-full border-0 border-b-2 border-transparent bg-transparent pb-1 text-xl font-bold text-gray-900 transition-colors placeholder:text-gray-300 hover:border-gray-200 focus:border-indigo-500 focus:outline-none dark:text-gray-50 dark:placeholder:text-gray-600 dark:hover:border-gray-600 dark:focus:border-indigo-400 sm:text-2xl"
                 />
                 <p className="mb-6 text-xs text-gray-400 dark:text-gray-500">
                   Task #{task.id} · Project{" "}
@@ -316,9 +335,7 @@ export default function TaskDetailPage() {
                       <li key={sub.id}>
                         <button
                           onClick={() =>
-                            navigate(
-                              `/projects/${projectId}/tasks/${sub.id}`,
-                            )
+                            navigate(`/projects/${projectId}/tasks/${sub.id}`)
                           }
                           className="group flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm transition-colors hover:bg-gray-50 dark:hover:bg-gray-700/50"
                         >
@@ -340,12 +357,20 @@ export default function TaskDetailPage() {
                           >
                             {sub.title}
                           </span>
-                          <Badge
-                            text={STATUS_LABELS[sub.status] ?? sub.status}
-                            color={STATUS_COLORS[sub.status] ?? "gray"}
-                            size="xs"
-                            className="ml-auto"
-                          />
+                          <div className="ml-auto flex items-center gap-1">
+                            {sub.priority && (
+                              <Badge
+                                text={PRIORITY_SHORT[sub.priority]}
+                                color={PRIORITY_COLORS[sub.priority] ?? "gray"}
+                                size="xs"
+                              />
+                            )}
+                            <Badge
+                              text={STATUS_LABELS[sub.status] ?? sub.status}
+                              color={STATUS_COLORS[sub.status] ?? "gray"}
+                              size="xs"
+                            />
+                          </div>
                         </button>
                       </li>
                     ))}
@@ -356,7 +381,7 @@ export default function TaskDetailPage() {
 
           {/* ── Right: Aside panel ── */}
           <div className="lg:col-span-1">
-            <div className="sticky top-6 rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
+            <div className="rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800 lg:sticky lg:top-6">
               {/* Assignees */}
               <AsideSection icon={<Users size={13} />} title="Assignees">
                 <UserSearchDropdown
@@ -368,6 +393,27 @@ export default function TaskDetailPage() {
                 />
               </AsideSection>
 
+              {/* Priority */}
+              <AsideSection icon={<Flag size={13} />} title="Priority">
+                <select
+                  value={priority ?? ""}
+                  onChange={(e) =>
+                    setPriority(
+                      e.target.value === ""
+                        ? null
+                        : (e.target.value as TaskPriority),
+                    )
+                  }
+                  className="w-full rounded-lg border border-gray-300 bg-gray-50 px-3 py-1.5 text-sm text-gray-900 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-50"
+                >
+                  <option value="">No priority</option>
+                  <option value={Priority.P0}>{PRIORITY_LABELS.p0}</option>
+                  <option value={Priority.P1}>{PRIORITY_LABELS.p1}</option>
+                  <option value={Priority.P2}>{PRIORITY_LABELS.p2}</option>
+                  <option value={Priority.P3}>{PRIORITY_LABELS.p3}</option>
+                </select>
+              </AsideSection>
+
               {/* Tags placeholder */}
               <AsideSection icon={<Tag size={13} />} title="Tags">
                 <p className="text-xs italic text-gray-300 dark:text-gray-600">
@@ -376,10 +422,7 @@ export default function TaskDetailPage() {
               </AsideSection>
 
               {/* Parent Task */}
-              <AsideSection
-                icon={<GitBranch size={13} />}
-                title="Parent Task"
-              >
+              <AsideSection icon={<GitBranch size={13} />} title="Parent Task">
                 <select
                   value={parentId === null ? "" : parentId}
                   onChange={(e) =>
@@ -399,10 +442,7 @@ export default function TaskDetailPage() {
               </AsideSection>
 
               {/* Start Date */}
-              <AsideSection
-                icon={<Calendar size={13} />}
-                title="Start Date"
-              >
+              <AsideSection icon={<Calendar size={13} />} title="Start Date">
                 <input
                   type="date"
                   value={startDate}
@@ -434,6 +474,11 @@ export default function TaskDetailPage() {
                   <div className="mb-3 flex items-center gap-1.5 rounded-lg bg-green-50 px-3 py-2 text-xs font-medium text-green-700 dark:bg-green-900/20 dark:text-green-400">
                     <CheckCircle2 size={13} />
                     Changes saved successfully
+                  </div>
+                )}
+                {saveError && (
+                  <div className="mb-3 rounded-lg bg-red-50 px-3 py-2 text-xs font-medium text-red-600 dark:bg-red-900/20 dark:text-red-400">
+                    {saveError}
                   </div>
                 )}
                 <PrimaryButton

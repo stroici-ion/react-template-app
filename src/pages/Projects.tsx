@@ -8,12 +8,9 @@ import {
   selectProjectsLoading,
   selectProjectsPagination,
 } from "../redux/projects/selectors";
-import { Header } from "../components/Header";
 import ProjectFormModal from "../components/ProjectFormModal";
 import Pagination from "../components/UI/Pagination";
 import PrimaryButton from "../components/UI/PrimaryButton";
-import { fetchUsers } from "../redux/users/asyncThunks";
-
 export default function Projects() {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
@@ -29,12 +26,10 @@ export default function Projects() {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      <Header />
-
-      <main className="mx-auto max-w-6xl px-6 py-10">
+      <main className="mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-10">
         <div className="mb-8 flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-50">
+            <h1 className="text-xl font-bold text-gray-900 dark:text-gray-50 sm:text-2xl">
               Projects
             </h1>
             <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">

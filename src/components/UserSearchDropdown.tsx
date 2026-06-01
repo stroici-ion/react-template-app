@@ -25,7 +25,10 @@ export default function UserSearchDropdown({
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
-  const { ref: dropdownRef } = useClickOutside<HTMLDivElement>(() => setOpen(false), open);
+  const { ref: dropdownRef } = useClickOutside<HTMLDivElement>(
+    () => setOpen(false),
+    open,
+  );
 
   const results = useMemo(
     () => fetchedUsers.filter((u) => !selectedUsers.some((s) => s.id === u.id)),
@@ -37,7 +40,11 @@ export default function UserSearchDropdown({
       setLoading(true);
       try {
         const response = await api.get("/users", {
-          params: { project_id: projectId, q: query || undefined, per_page: 15 },
+          params: {
+            project_id: projectId,
+            q: query || undefined,
+            per_page: 15,
+          },
         });
         const data = parseApiResponse(response.data) as { users: User[] };
         setFetchedUsers(data.users);
@@ -67,7 +74,11 @@ export default function UserSearchDropdown({
               className="flex items-center gap-1 rounded-full bg-indigo-100 px-2 py-0.5 text-xs font-medium text-indigo-800 dark:bg-indigo-900/40 dark:text-indigo-300"
             >
               {user.avatarUrl ? (
-                <img src={user.avatarUrl} className="h-4 w-4 rounded-full object-cover" alt="" />
+                <img
+                  src={user.avatarUrl}
+                  className="h-4 w-4 rounded-full object-cover"
+                  alt=""
+                />
               ) : (
                 <span className="flex h-4 w-4 items-center justify-center rounded-full bg-indigo-500 text-[9px] text-white">
                   {initials(user)}
@@ -132,7 +143,9 @@ export default function UserSearchDropdown({
                       <span className="text-gray-800 dark:text-gray-100">
                         {user.firstName} {user.lastName}
                       </span>
-                      <span className="ml-auto text-xs text-gray-400">{user.email}</span>
+                      <span className="ml-auto text-xs text-gray-400">
+                        {user.email}
+                      </span>
                     </button>
                   </li>
                 ))}

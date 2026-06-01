@@ -8,8 +8,13 @@ export const { selectAll: selectAllProjects, selectById: selectProjectById } =
 export const selectProjectMembers = (state: RootState, projectId: number) =>
   state.projects.entities[projectId]?.members ?? [];
 
-export const selectProjectMemberUsers = (state: RootState, projectId: number): User[] =>
+export const selectProjectMemberUsers = (
+  state: RootState,
+  projectId: number,
+): User[] =>
   state.projects.entities[projectId]?.members?.map((m) => m.user) ?? [];
 
-export const selectProjectsLoading = (state: RootState) => state.projects.loading;
-export const selectProjectsPagination = (state: RootState) => state.projects.pagination;
+export const selectProjectsLoading = (state: RootState) =>
+  state.projects.loading;
+export const selectProjectsPagination = (state: RootState) =>
+  state.projects.pagination;

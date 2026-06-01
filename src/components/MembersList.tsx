@@ -19,9 +19,15 @@ interface MembersListProps {
   currentUserRole: "admin" | "member" | null;
 }
 
-const MembersList = memo(function MembersList({ projectId, creatorId, currentUserRole }: MembersListProps) {
+const MembersList = memo(function MembersList({
+  projectId,
+  creatorId,
+  currentUserRole,
+}: MembersListProps) {
   const dispatch = useAppDispatch();
-  const members = useAppSelector((state) => selectProjectMembers(state, projectId));
+  const members = useAppSelector((state) =>
+    selectProjectMembers(state, projectId),
+  );
   const { user: currentUser } = useAppSelector(selectAuth);
   const [email, setEmail] = useState("");
   const [adding, setAdding] = useState(false);
@@ -38,7 +44,9 @@ const MembersList = memo(function MembersList({ projectId, creatorId, currentUse
     setAdding(true);
     setAddError(null);
     try {
-      await dispatch(addProjectMember({ projectId, email: email.trim() })).unwrap();
+      await dispatch(
+        addProjectMember({ projectId, email: email.trim() }),
+      ).unwrap();
       setEmail("");
     } catch (e: any) {
       setAddError(e as string);
@@ -49,11 +57,18 @@ const MembersList = memo(function MembersList({ projectId, creatorId, currentUse
 
   const handleRoleToggle = (member: ProjectMember) => {
     const newRole = member.role === "admin" ? "member" : "admin";
-    dispatch(updateMemberRole({ projectId, membershipId: member.id, role: newRole }));
+    dispatch(
+      updateMemberRole({ projectId, membershipId: member.id, role: newRole }),
+    );
   };
 
   const handleRemove = (member: ProjectMember) => {
-    if (!confirm(`Remove ${member.user.firstName} ${member.user.lastName} from this project?`)) return;
+    if (
+      !confirm(
+        `Remove ${member.user.firstName} ${member.user.lastName} from this project?`,
+      )
+    )
+      return;
     dispatch(removeProjectMember({ projectId, membershipId: member.id }));
   };
 
@@ -104,12 +119,16 @@ const MembersList = memo(function MembersList({ projectId, creatorId, currentUse
                 </span>
               )}
 
-              <div className="flex-1 min-w-0">
+              <div className="min-w-0 flex-1">
                 <p className="truncate text-sm font-medium text-gray-900 dark:text-gray-50">
                   {member.user.firstName} {member.user.lastName}
-                  {isSelf && <span className="ml-1 text-xs text-gray-400">(you)</span>}
+                  {isSelf && (
+                    <span className="ml-1 text-xs text-gray-400">(you)</span>
+                  )}
                 </p>
-                <p className="truncate text-xs text-gray-500">{member.user.email}</p>
+                <p className="truncate text-xs text-gray-500">
+                  {member.user.email}
+                </p>
               </div>
 
               <div className="flex items-center gap-2">
@@ -119,10 +138,11 @@ const MembersList = memo(function MembersList({ projectId, creatorId, currentUse
                   </span>
                 ) : (
                   <span
-                    className={`flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium ${member.role === "admin"
-                      ? "bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-400"
-                      : "bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300"
-                      }`}
+                    className={`flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium ${
+                      member.role === "admin"
+                        ? "bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-400"
+                        : "bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300"
+                    }`}
                   >
                     {member.role === "admin" && <Shield size={11} />}
                     {member.role === "admin" ? "Admin" : "Member"}

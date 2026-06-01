@@ -16,14 +16,21 @@ const toSnakeCase = (input: Record<string, any>): Record<string, any> => {
 export const fetchTasks = createAsyncThunk(
   "tasks/fetchTasks",
   async (
-    { projectId, page = 1, perPage = 100 }: { projectId: number; page?: number; perPage?: number },
+    {
+      projectId,
+      page = 1,
+      perPage = 100,
+    }: { projectId: number; page?: number; perPage?: number },
     { rejectWithValue },
   ) => {
     try {
       const response = await api.get(`/projects/${projectId}/tasks`, {
         params: { page, per_page: perPage },
       });
-      return parseApiResponse(response.data) as { tasks: Task[]; pagination: PaginationMeta };
+      return parseApiResponse(response.data) as {
+        tasks: Task[];
+        pagination: PaginationMeta;
+      };
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.error);
     }
@@ -59,8 +66,19 @@ export const updateTask = createAsyncThunk(
       const response = await api.patch(`/tasks/${id}`, {
         task: toSnakeCase(changes),
       });
-      const data = parseApiResponse(response.data) as Task;
-      return { id, changes: data };
+      const data = parseApiResponse(response.data) as {
+        task: Task;
+        cascadeUpdates: Array<{
+          id: number;
+          priority: string | null;
+          status: string;
+        }>;
+      };
+      return {
+        id,
+        changes: data.task,
+        cascadeUpdates: data.cascadeUpdates ?? [],
+      };
     } catch (error: any) {
       return rejectWithValue(
         error.response?.data?.error ||
@@ -119,24 +137,44 @@ export const reorderTasks = createAsyncThunk(
 
 export const addTaskAssignee = createAsyncThunk(
   "tasks/addTaskAssignee",
-  async ({ taskId, userId }: { taskId: number; userId: number }, { rejectWithValue }) => {
+  async (
+    { taskId, userId }: { taskId: number; userId: number },
+    { rejectWithValue },
+  ) => {
     try {
-      const response = await api.post(`/tasks/${taskId}/task_assignments`, { user_id: userId });
-      return parseApiResponse(response.data) as { id: number; assigneeIds: number[] };
+      const response = await api.post(`/tasks/${taskId}/task_assignments`, {
+        user_id: userId,
+      });
+      return parseApiResponse(response.data) as {
+        id: number;
+        assigneeIds: number[];
+      };
     } catch (error: any) {
-      return rejectWithValue(error.response?.data?.error || "Failed to add assignee");
+      return rejectWithValue(
+        error.response?.data?.error || "Failed to add assignee",
+      );
     }
   },
 );
 
 export const removeTaskAssignee = createAsyncThunk(
   "tasks/removeTaskAssignee",
-  async ({ taskId, userId }: { taskId: number; userId: number }, { rejectWithValue }) => {
+  async (
+    { taskId, userId }: { taskId: number; userId: number },
+    { rejectWithValue },
+  ) => {
     try {
-      const response = await api.delete(`/tasks/${taskId}/task_assignments/${userId}`);
-      return parseApiResponse(response.data) as { id: number; assigneeIds: number[] };
+      const response = await api.delete(
+        `/tasks/${taskId}/task_assignments/${userId}`,
+      );
+      return parseApiResponse(response.data) as {
+        id: number;
+        assigneeIds: number[];
+      };
     } catch (error: any) {
-      return rejectWithValue(error.response?.data?.error || "Failed to remove assignee");
+      return rejectWithValue(
+        error.response?.data?.error || "Failed to remove assignee",
+      );
     }
   },
 );

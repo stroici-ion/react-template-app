@@ -7,7 +7,12 @@ import type { PaginationMeta } from "../types";
 export const fetchUsers = createAsyncThunk(
   "users/fetchUsers",
   async (
-    { q, projectId, page = 1, perPage = 20 }: { q?: string; projectId?: number; page?: number; perPage?: number } = {},
+    {
+      q,
+      projectId,
+      page = 1,
+      perPage = 20,
+    }: { q?: string; projectId?: number; page?: number; perPage?: number } = {},
     { rejectWithValue },
   ) => {
     try {
@@ -15,9 +20,14 @@ export const fetchUsers = createAsyncThunk(
       if (q) params.q = q;
       if (projectId) params.project_id = projectId;
       const response = await api.get("/users", { params });
-      return parseApiResponse(response.data) as { users: User[]; pagination: PaginationMeta };
+      return parseApiResponse(response.data) as {
+        users: User[];
+        pagination: PaginationMeta;
+      };
     } catch (error: any) {
-      return rejectWithValue(error.response?.data?.error || "Failed to load users");
+      return rejectWithValue(
+        error.response?.data?.error || "Failed to load users",
+      );
     }
   },
 );
