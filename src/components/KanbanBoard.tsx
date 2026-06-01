@@ -92,7 +92,7 @@ function KanbanCard({
         </p>
         <ExternalLink
           size={13}
-          className="mt-0.5 shrink-0 text-gray-300 opacity-0 transition-opacity group-hover:opacity-100 dark:text-gray-500"
+          className="mt-0.5 shrink-0 text-gray-300 opacity-0 transition-opacity group-hover:opacity-100 dark:text-gray-500 cursor-pointer"
         />
       </div>
 

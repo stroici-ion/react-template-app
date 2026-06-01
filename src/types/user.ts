@@ -4,5 +4,7 @@ export interface User {
   firstName: string;
   lastName: string;
   avatarUrl: string;
-  authMethod: "email" | "google";
+  authMethod: "email" | "google" | "both";
+  loginAlertsEnabled: boolean;
+  pendingEmail?: string | null;
 }

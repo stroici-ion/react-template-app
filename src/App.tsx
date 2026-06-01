@@ -16,6 +16,7 @@ import PersonalInformation from "./pages/PersonalInformation";
 import Security from "./pages/Security";
 import ConfirmEmail from "./pages/ConfirmEmail";
 import EmailVerification from "./pages/EmailVerification";
+import ConfirmEmailChange from "./pages/ConfirmEmailChange";
 import { AppLayout } from "./components/layouts/AppLayout";
 
 interface RouteConfig {
@@ -53,6 +54,10 @@ function App() {
       { path: "/auth/forgot-password", element: <ForgotPassword /> },
       { path: "/auth/reset-password/:token", element: <ResetPassword /> },
       { path: "/auth/confirm-email/:token", element: <ConfirmEmail /> },
+      {
+        path: "/auth/confirm-email-change/:token",
+        element: <ConfirmEmailChange />,
+      },
       { path: "/auth/email-verification", element: <EmailVerification /> },
     ],
     authorized: [

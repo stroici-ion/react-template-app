@@ -427,18 +427,18 @@ export default function Home() {
                   <div
                     key={task.id}
                     className={`flex flex-col gap-2.5 rounded-xl border bg-white p-4 shadow-sm transition-shadow hover:shadow-md dark:bg-gray-800 ${isMyTask
-                        ? "border-indigo-200 dark:border-indigo-700/50"
-                        : "border-gray-200 dark:border-gray-700"
+                      ? "border-indigo-200 dark:border-indigo-700/50"
+                      : "border-gray-200 dark:border-gray-700"
                       }`}
                   >
                     {/* Priority + due label */}
                     <div className="flex items-center justify-between gap-2">
                       <span
                         className={`rounded px-1.5 py-0.5 text-[10px] font-semibold ${level === "danger"
-                            ? "bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400"
-                            : level === "warn"
-                              ? "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400"
-                              : "bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300"
+                          ? "bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400"
+                          : level === "warn"
+                            ? "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400"
+                            : "bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300"
                           }`}
                       >
                         {label}
@@ -484,7 +484,7 @@ export default function Home() {
                             `/projects/${task.projectId}/tasks/${task.id}`,
                           )
                         }
-                        className="text-gray-400 transition-colors hover:text-indigo-600 dark:hover:text-indigo-400"
+                        className="text-gray-400 transition-colors hover:text-indigo-600 dark:hover:text-indigo-400 cursor-pointer"
                         title="View details"
                       >
                         <ExternalLink size={13} />

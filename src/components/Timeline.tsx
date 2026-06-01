@@ -335,7 +335,7 @@ function BarContent({
         className={clsx(
           "min-w-0 flex-1 truncate text-[11px] font-semibold text-white",
           (task.status === "closed" || task.status === "cancelled") &&
-            "line-through opacity-70",
+          "line-through opacity-70",
         )}
       >
         {task.title}
@@ -364,7 +364,7 @@ function BarContent({
           e.stopPropagation();
           onView();
         }}
-        className="shrink-0 rounded p-0.5 text-white/70 opacity-0 transition-opacity hover:text-white group-hover:opacity-100"
+        className="shrink-0 rounded p-0.5 text-white/70 opacity-0 transition-opacity hover:text-white group-hover:opacity-100 cursor-pointer"
         title="View details"
       >
         <ExternalLink size={11} />
@@ -423,7 +423,7 @@ function DailyRow({
             : "text-sm text-gray-800 dark:text-gray-100",
           isMine && "text-indigo-700 dark:text-indigo-300",
           (task.status === "closed" || task.status === "cancelled") &&
-            "line-through opacity-60",
+          "line-through opacity-60",
         )}
       >
         {task.title}
@@ -735,7 +735,7 @@ export function Timeline({ tasks, currentUser }: TimelineProps) {
                     className={clsx(
                       "flex-1 border-r border-gray-100 last:border-r-0 dark:border-gray-700/40",
                       isSameDay(day, today) &&
-                        "bg-indigo-50/30 dark:bg-indigo-900/10",
+                      "bg-indigo-50/30 dark:bg-indigo-900/10",
                     )}
                   />
                 ))}

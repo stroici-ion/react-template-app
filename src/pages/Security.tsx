@@ -1,5 +1,6 @@
 import React, { useState } from "react";
-import { useAppDispatch } from "../redux/hooks";
+import { useAppDispatch, useAppSelector } from "../redux/hooks";
+import { selectAuth } from "../redux/auth/selectors";
 import PrimaryButton from "../components/UI/PrimaryButton";
 import Alert from "../components/UI/Alert";
 import Title from "../components/UI/Title";
@@ -8,13 +9,26 @@ import Card from "../components/UI/Card";
 import { useForm } from "react-hook-form";
 import ToggleSwitch from "../components/UI/ToggleSwitch";
 import { useAlert } from "../hooks/useAlert";
-import { LogOut, Save } from "lucide-react";
-import { logoutAllDevices, updatePassword } from "../redux/auth/asyncThunks";
+import { LogOut, Mail, Save, Shield, KeyRound } from "lucide-react";
+import {
+  logoutAllDevices,
+  updatePassword,
+  addPassword,
+  requestEmailChange,
+  updateSecurityPreferences,
+} from "../redux/auth/asyncThunks";
 import { useNavigate } from "react-router-dom";
 import { useAsyncEvent } from "../hooks/useAsyncEvent";
 import { InputPassword } from "../components/UI/InputPassword";
+import { Input } from "../components/UI/Input";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { updatePasswordSchema } from "../utils/shemas";
+import {
+  updatePasswordSchema,
+  addPasswordSchema,
+  changeEmailSchema,
+  type AddPasswordFormValues,
+  type ChangeEmailFormValues,
+} from "../utils/shemas";
 
 interface PasswordFormValues {
   currentPassword: string;
@@ -22,79 +36,160 @@ interface PasswordFormValues {
   confirmPassword: string;
 }
 
+// ─── Section wrapper ─────────────────────────────────────────────────────────
+
+function Section({
+  title,
+  description,
+  children,
+}: {
+  title: string;
+  description?: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="mb-8">
+      <h3 className="mb-1 text-lg font-semibold text-gray-900 dark:text-gray-50">
+        {title}
+      </h3>
+      {description && (
+        <p className="mb-4 text-sm text-gray-500 dark:text-gray-400">
+          {description}
+        </p>
+      )}
+      {children}
+    </div>
+  );
+}
+
+// ─── Main component ───────────────────────────────────────────────────────────
+
 const Security: React.FC = () => {
   const dispatch = useAppDispatch();
   const alert = useAlert();
   const navigate = useNavigate();
+  const { user } = useAppSelector(selectAuth);
 
-  const passwordUpdateForm = useForm<PasswordFormValues>({
+  const authMethod = user?.authMethod ?? "email";
+  const isGoogleOnly = authMethod === "google";
+  const hasPassword = authMethod === "email" || authMethod === "both";
+
+  // ── Change Password (email / both users) ──────────────────────────────────
+
+  const passwordForm = useForm<PasswordFormValues>({
     resolver: zodResolver(updatePasswordSchema),
   });
 
-  const passwordUpdateEvent = useAsyncEvent(
+  const passwordEvent = useAsyncEvent(
     async () => {
-      const validate = await passwordUpdateForm.trigger();
-
-      if (!validate) throw new Error("Invalid fields");
-
-      const payload = {
-        old_password: passwordUpdateForm.getValues("currentPassword"),
-        new_password: passwordUpdateForm.getValues("newPassword"),
-        new_password_confirmation:
-          passwordUpdateForm.getValues("confirmPassword"),
-      };
-
-      await dispatch(updatePassword(payload)).unwrap();
+      const ok = await passwordForm.trigger();
+      if (!ok) throw new Error("Invalid fields");
+      await dispatch(
+        updatePassword({
+          old_password: passwordForm.getValues("currentPassword"),
+          new_password: passwordForm.getValues("newPassword"),
+          new_password_confirmation: passwordForm.getValues("confirmPassword"),
+        }),
+      ).unwrap();
     },
     {
       onSuccess: () => {
-        alert.success("Password successfully updated.");
-        passwordUpdateForm.reset();
+        alert.success("Password updated successfully.");
+        passwordForm.reset();
       },
-      onError: (err) => {
-        alert.error(err || "Failed to update password. ");
-      },
+      onError: (err) => alert.error(err || "Failed to update password."),
+    },
+    { successMessageText: "Password updated successfully." },
+  );
+
+  // ── Add Password (Google-only users) ─────────────────────────────────────
+
+  const addPasswordForm = useForm<AddPasswordFormValues>({
+    resolver: zodResolver(addPasswordSchema),
+  });
+
+  const addPasswordEvent = useAsyncEvent(
+    async () => {
+      const ok = await addPasswordForm.trigger();
+      if (!ok) throw new Error("Invalid fields");
+      await dispatch(
+        addPassword({
+          new_password: addPasswordForm.getValues("newPassword"),
+          new_password_confirmation:
+            addPasswordForm.getValues("confirmPassword"),
+        }),
+      ).unwrap();
     },
     {
-      successMessageText: "Password successfully updated.",
+      onSuccess: () => {
+        alert.success(
+          "Password set! You can now sign in with email and password.",
+        );
+        addPasswordForm.reset();
+      },
+      onError: (err) => alert.error(err || "Failed to set password."),
+    },
+    {
+      successMessageText:
+        "Password set! You can now sign in with email and password.",
     },
   );
 
-  const handlePasswordSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    passwordUpdateEvent.execute();
-  };
+  // ── Change Email ──────────────────────────────────────────────────────────
 
-  const handleOnChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.name)
-      passwordUpdateForm.clearErrors(e.target.name as keyof PasswordFormValues);
-  };
-
-  const getpasswordUpdateFormError = (name: keyof PasswordFormValues) => {
-    return passwordUpdateForm.formState.errors[name]?.message;
-  };
-
-  const [preferences, setPreferences] = useState({
-    twoFactorEnabled: false,
-    loginAlerts: true,
+  const emailForm = useForm<ChangeEmailFormValues>({
+    resolver: zodResolver(changeEmailSchema),
   });
+  const [emailChangeMsg, setEmailChangeMsg] = useState<string | null>(null);
 
-  const changePreference = (
-    key: keyof typeof preferences,
-    value: string | boolean,
-  ) => {
-    const updatedPreferences = { ...preferences, [key]: value };
-    setPreferences(updatedPreferences);
+  const emailChangeEvent = useAsyncEvent(
+    async () => {
+      const ok = await emailForm.trigger();
+      if (!ok) throw new Error("Invalid fields");
+      await dispatch(
+        requestEmailChange(emailForm.getValues("newEmail")),
+      ).unwrap();
+    },
+    {
+      onSuccess: () => {
+        const newEmail = emailForm.getValues("newEmail");
+        setEmailChangeMsg(
+          `Confirmation email sent to ${newEmail}. Click the link to confirm.`,
+        );
+        emailForm.reset();
+      },
+      onError: (err) => alert.error(err || "Failed to request email change."),
+    },
+  );
+
+  // ── Login Alerts ──────────────────────────────────────────────────────────
+
+  const [alertsLoading, setAlertsLoading] = useState(false);
+
+  const handleLoginAlertsToggle = async (enabled: boolean) => {
+    setAlertsLoading(true);
+    try {
+      await dispatch(
+        updateSecurityPreferences({ login_alerts_enabled: enabled }),
+      ).unwrap();
+      alert.success(
+        enabled ? "Login alerts enabled." : "Login alerts disabled.",
+      );
+    } catch (err: any) {
+      alert.error(err || "Failed to update preferences.");
+    } finally {
+      setAlertsLoading(false);
+    }
   };
 
-  const { execute: handleLogoutAllDevices, error: logoutError } = useAsyncEvent(
+  // ── Logout all devices ────────────────────────────────────────────────────
+
+  const { execute: handleLogoutAll, error: logoutError } = useAsyncEvent(
     async () => await dispatch(logoutAllDevices()).unwrap(),
     {
       onSuccess: () => navigate("/auth/login"),
-      onError: (err) => {
-        const errorMessage = err || "Failed to log out from other devices";
-        alert.error(errorMessage);
-      },
+      onError: (err) =>
+        alert.error(err || "Failed to log out from other devices."),
     },
   );
 
@@ -103,7 +198,7 @@ const Security: React.FC = () => {
       <div>
         <Title text="Security Settings" />
         <Text
-          text="Manage your password, active sessions, and security preferences."
+          text="Manage your password, email, and security preferences."
           colorIntensity="soft"
           className="mt-1"
         />
@@ -111,103 +206,236 @@ const Security: React.FC = () => {
 
       <hr className="my-6 border-gray-200 dark:border-gray-700" />
 
-      <div className="mb-8">
-        <h3 className="mb-4 text-lg font-semibold text-gray-900 dark:text-gray-50">
-          Change Password
-        </h3>
+      {/* ── Authentication method badge ── */}
+      <Section title="Sign-in Method">
+        <div className="flex flex-wrap items-center gap-3">
+          {(authMethod === "email" || authMethod === "both") && (
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-indigo-50 px-3 py-1.5 text-sm font-medium text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300">
+              <KeyRound size={14} /> Password
+            </span>
+          )}
+          {(authMethod === "google" || authMethod === "both") && (
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-blue-50 px-3 py-1.5 text-sm font-medium text-blue-700 dark:bg-blue-900/30 dark:text-blue-300">
+              <Shield size={14} /> Google
+            </span>
+          )}
+          {authMethod === "both" && (
+            <span className="text-sm text-gray-500 dark:text-gray-400">
+              You can sign in with either Google or your
+              email&nbsp;+&nbsp;password.
+            </span>
+          )}
+          {isGoogleOnly && (
+            <span className="text-sm text-gray-500 dark:text-gray-400">
+              Your account is linked to Google. Add a password below to also
+              enable email&nbsp;+&nbsp;password sign-in.
+            </span>
+          )}
+        </div>
+      </Section>
+
+      <hr className="my-6 border-gray-200 dark:border-gray-700" />
+
+      {/* ── Change password (email / both users) ── */}
+      {hasPassword && (
+        <>
+          <Section
+            title="Change Password"
+            description="Choose a strong password you don't use elsewhere."
+          >
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                passwordEvent.execute();
+              }}
+              className="space-y-5 md:w-2/3 lg:w-1/2"
+            >
+              <InputPassword
+                id="currentPassword"
+                name="currentPassword"
+                label="Current Password"
+                register={passwordForm.register}
+                onChange={() => passwordForm.clearErrors("currentPassword")}
+                error={passwordForm.formState.errors.currentPassword?.message}
+                required
+              />
+              <InputPassword
+                id="newPassword"
+                name="newPassword"
+                label="New Password"
+                register={passwordForm.register}
+                onChange={() => passwordForm.clearErrors("newPassword")}
+                error={passwordForm.formState.errors.newPassword?.message}
+                required
+              />
+              <InputPassword
+                id="confirmPassword"
+                name="confirmPassword"
+                label="Confirm New Password"
+                register={passwordForm.register}
+                onChange={() => passwordForm.clearErrors("confirmPassword")}
+                error={passwordForm.formState.errors.confirmPassword?.message}
+                required
+              />
+              {passwordEvent.error && (
+                <Alert text={passwordEvent.error} kind="error" />
+              )}
+              {passwordEvent.successMsg && (
+                <Alert text={passwordEvent.successMsg} kind="success" />
+              )}
+              <div className="flex justify-end">
+                <PrimaryButton
+                  type="submit"
+                  text="Update Password"
+                  loading={passwordEvent.loading}
+                />
+              </div>
+            </form>
+          </Section>
+          <hr className="my-6 border-gray-200 dark:border-gray-700" />
+        </>
+      )}
+
+      {/* ── Add password (Google-only users) ── */}
+      {isGoogleOnly && (
+        <>
+          <Section
+            title="Add a Password"
+            description="Set a password to enable signing in with your email and password in addition to Google."
+          >
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                addPasswordEvent.execute();
+              }}
+              className="space-y-5 md:w-2/3 lg:w-1/2"
+            >
+              <InputPassword
+                id="ap-newPassword"
+                name="newPassword"
+                label="New Password"
+                register={addPasswordForm.register}
+                onChange={() => addPasswordForm.clearErrors("newPassword")}
+                error={addPasswordForm.formState.errors.newPassword?.message}
+                required
+              />
+              <InputPassword
+                id="ap-confirmPassword"
+                name="confirmPassword"
+                label="Confirm Password"
+                register={addPasswordForm.register}
+                onChange={() => addPasswordForm.clearErrors("confirmPassword")}
+                error={
+                  addPasswordForm.formState.errors.confirmPassword?.message
+                }
+                required
+              />
+              {addPasswordEvent.error && (
+                <Alert text={addPasswordEvent.error} kind="error" />
+              )}
+              {addPasswordEvent.successMsg && (
+                <Alert text={addPasswordEvent.successMsg} kind="success" />
+              )}
+              <div className="flex justify-end">
+                <PrimaryButton
+                  type="submit"
+                  text="Set Password"
+                  loading={addPasswordEvent.loading}
+                />
+              </div>
+            </form>
+          </Section>
+          <hr className="my-6 border-gray-200 dark:border-gray-700" />
+        </>
+      )}
+
+      {/* ── Change email ── */}
+      <Section
+        title="Change Email Address"
+        description="A confirmation link will be sent to your new email. Your current email remains active until confirmed."
+      >
+        {user?.pendingEmail && (
+          <Alert
+            text={`Waiting for confirmation at ${user.pendingEmail}. Check your inbox.`}
+            kind="info"
+            className="mb-4"
+          />
+        )}
         <form
-          onSubmit={handlePasswordSubmit}
-          className="space-y-6 md:w-2/3 lg:w-1/2"
+          onSubmit={(e) => {
+            e.preventDefault();
+            setEmailChangeMsg(null);
+            emailChangeEvent.execute();
+          }}
+          className="space-y-4 md:w-2/3 lg:w-1/2"
         >
-          <InputPassword
-            id="currentPassword"
-            name="currentPassword"
-            label="Current Password"
-            register={passwordUpdateForm.register}
-            onChange={handleOnChange}
-            error={getpasswordUpdateFormError("currentPassword")}
-            required
+          <div className="text-sm text-gray-600 dark:text-gray-400">
+            Current email:{" "}
+            <span className="font-medium text-gray-900 dark:text-gray-50">
+              {user?.email}
+            </span>
+          </div>
+          <Input
+            id="newEmail"
+            name="newEmail"
+            label="New Email Address"
+            type="email"
+            register={emailForm.register}
+            error={emailForm.formState.errors.newEmail?.message}
           />
-          <InputPassword
-            id="newPassword"
-            name="newPassword"
-            label="New Password"
-            register={passwordUpdateForm.register}
-            onChange={handleOnChange}
-            error={getpasswordUpdateFormError("newPassword")}
-            required
-          />
-          <InputPassword
-            id="confirmPassword"
-            name="confirmPassword"
-            label="Confirm New Password"
-            register={passwordUpdateForm.register}
-            onChange={handleOnChange}
-            error={getpasswordUpdateFormError("confirmPassword")}
-            required
-          />
-          {passwordUpdateEvent.error && (
-            <Alert text={passwordUpdateEvent.error} kind="error" />
+          {emailChangeEvent.error && (
+            <Alert text={emailChangeEvent.error} kind="error" />
           )}
-          {passwordUpdateEvent.successMsg && (
-            <Alert text={passwordUpdateEvent.successMsg} kind="success" />
-          )}
+          {emailChangeMsg && <Alert text={emailChangeMsg} kind="success" />}
           <div className="flex justify-end">
-            <PrimaryButton type="submit" text="Update Password" />
+            <PrimaryButton
+              type="submit"
+              text="Send Confirmation"
+              icon={<Mail size={15} />}
+              loading={emailChangeEvent.loading}
+            />
           </div>
         </form>
-      </div>
+      </Section>
 
       <hr className="my-6 border-gray-200 dark:border-gray-700" />
 
-      <div className="mb-8">
-        <h3 className="mb-4 text-lg font-semibold text-gray-900 dark:text-gray-50">
-          Security Preferences
-        </h3>
-        <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
-          <div className="space-y-6">
-            <ToggleSwitch
-              label="Two-Factor Authentication (2FA)"
-              description="Add an extra layer of security to your account."
-              checked={preferences.twoFactorEnabled}
-              onChange={(val) => changePreference("twoFactorEnabled", val)}
-            />
-            <ToggleSwitch
-              label="New Login Alerts"
-              description="Get an email when someone logs into your account from a new device."
-              checked={preferences.loginAlerts}
-              onChange={(val) => changePreference("loginAlerts", val)}
-            />
-          </div>
+      {/* ── Security preferences ── */}
+      <Section
+        title="Security Preferences"
+        description="Control security notifications for your account."
+      >
+        <div className="md:w-2/3 lg:w-1/2">
+          <ToggleSwitch
+            label="New Login Alerts"
+            description="Receive an email whenever a new sign-in is detected on your account."
+            checked={user?.loginAlertsEnabled ?? false}
+            onChange={handleLoginAlertsToggle}
+            disabled={alertsLoading}
+          />
         </div>
-        <div className="mt-6 flex justify-end">
-          <PrimaryButton text="Save Changes" icon={<Save size={16} />} />
-        </div>
-      </div>
+      </Section>
 
       <hr className="my-6 border-gray-200 dark:border-gray-700" />
 
-      <div>
-        <h3 className="mb-2 text-lg font-semibold text-gray-900 dark:text-gray-50">
-          Active Sessions
-        </h3>
+      {/* ── Active sessions ── */}
+      <Section title="Active Sessions">
         <Text
-          text="If you notice suspicious activity, you can force a logout all devices and browsers."
+          text="If you notice suspicious activity, force a logout on all other devices and browsers."
           colorIntensity="soft"
           className="mb-4"
         />
         {logoutError && (
-          <Alert text={logoutError} kind="error" className="my-4" />
+          <Alert text={logoutError} kind="error" className="mb-4" />
         )}
-
         <PrimaryButton
           text="Log out from all devices"
-          onClick={handleLogoutAllDevices}
+          onClick={handleLogoutAll}
           color="red"
           outline
-          icon={<LogOut size={18} />}
+          icon={<LogOut size={16} />}
         />
-      </div>
+      </Section>
     </Card>
   );
 };

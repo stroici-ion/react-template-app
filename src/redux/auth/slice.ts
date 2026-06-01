@@ -1,6 +1,7 @@
 import { createSlice } from "@reduxjs/toolkit";
 import type { AuthState } from "./types";
 import {
+  addPassword,
   fetchMe,
   loginUser,
   loginWithGoogle,
@@ -8,7 +9,9 @@ import {
   logoutUser,
   refreshUser,
   registerUser,
+  requestEmailChange,
   updateProfile,
+  updateSecurityPreferences,
 } from "./asyncThunks";
 import type { User } from "../../types/user";
 
@@ -40,11 +43,14 @@ export const authSlice = createSlice({
         state.error = action.payload as string;
       })
 
-      // FETCH ME, UPDATE PROFILE
+      // FETCH ME, UPDATE PROFILE, ADD PASSWORD, EMAIL CHANGE, SECURITY PREFS
       .addMatcher(
         (action) =>
           action.type === fetchMe.fulfilled.type ||
-          action.type === updateProfile.fulfilled.type,
+          action.type === updateProfile.fulfilled.type ||
+          action.type === addPassword.fulfilled.type ||
+          action.type === requestEmailChange.fulfilled.type ||
+          action.type === updateSecurityPreferences.fulfilled.type,
         (state, action: any) => {
           state.status = "succeeded";
           state.isAuthenticated = true;

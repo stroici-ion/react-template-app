@@ -3,6 +3,77 @@ import { api, apiWithoutAuth } from "../../api/axios";
 import type { AuthResponse, UpdatePasswordPayload } from "./types";
 import parseApiResponse from "../../utils/api";
 
+export const addPassword = createAsyncThunk(
+  "auth/addPassword",
+  async (
+    payload: { new_password: string; new_password_confirmation: string },
+    { rejectWithValue },
+  ) => {
+    try {
+      const response = await api.post("/auth/add_password", payload);
+      return parseApiResponse(response.data) as { message: string; user: any };
+    } catch (error: any) {
+      return rejectWithValue(
+        error.response?.data?.error ||
+          error.response?.data?.errors?.join(", ") ||
+          "Failed to set password",
+      );
+    }
+  },
+);
+
+export const requestEmailChange = createAsyncThunk(
+  "auth/requestEmailChange",
+  async (newEmail: string, { rejectWithValue }) => {
+    try {
+      const response = await api.post("/users/request_email_change", {
+        new_email: newEmail,
+      });
+      return parseApiResponse(response.data) as { message: string; user: any };
+    } catch (error: any) {
+      return rejectWithValue(
+        error.response?.data?.error || "Failed to request email change",
+      );
+    }
+  },
+);
+
+export const updateSecurityPreferences = createAsyncThunk(
+  "auth/updateSecurityPreferences",
+  async (
+    preferences: { login_alerts_enabled: boolean },
+    { rejectWithValue },
+  ) => {
+    try {
+      const response = await api.patch(
+        "/users/update_security_preferences",
+        preferences,
+      );
+      return parseApiResponse(response.data) as { message: string; user: any };
+    } catch (error: any) {
+      return rejectWithValue(
+        error.response?.data?.error || "Failed to update preferences",
+      );
+    }
+  },
+);
+
+export const confirmEmailChange = createAsyncThunk(
+  "auth/confirmEmailChange",
+  async (token: string, { rejectWithValue }) => {
+    try {
+      const response = await apiWithoutAuth.get(
+        `/auth/confirm_email_change?token=${token}`,
+      );
+      return response.data as { message: string };
+    } catch (error: any) {
+      return rejectWithValue(
+        error.response?.data?.error || "Email change confirmation failed",
+      );
+    }
+  },
+);
+
 export const loginUser = createAsyncThunk(
   "auth/login",
   async (credentials: Record<string, string>, { rejectWithValue }) => {

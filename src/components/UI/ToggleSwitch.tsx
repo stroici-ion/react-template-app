@@ -9,6 +9,7 @@ interface ToggleSwitchProps {
   onChange: (checked: boolean) => void;
   color?: string;
   labelColor?: string;
+  disabled?: boolean;
 }
 
 const labelColorVariants: Record<string, string> = {
@@ -57,9 +58,15 @@ const ToggleSwitch: React.FC<ToggleSwitchProps> = ({
   onChange,
   color = styles.default.toggle || "blue",
   labelColor = styles.default.inputLabel || "slate",
+  disabled = false,
 }) => {
   return (
-    <label className="group flex cursor-pointer items-center justify-between">
+    <label
+      className={clsx(
+        "group flex items-center justify-between",
+        disabled ? "cursor-not-allowed opacity-60" : "cursor-pointer",
+      )}
+    >
       <div className="flex flex-col pr-4">
         <span
           className={clsx(
@@ -87,7 +94,8 @@ const ToggleSwitch: React.FC<ToggleSwitchProps> = ({
           type="checkbox"
           className="peer sr-only"
           checked={checked}
-          onChange={(e) => onChange(e.target.checked)}
+          disabled={disabled}
+          onChange={(e) => !disabled && onChange(e.target.checked)}
         />
         <div
           className={clsx(

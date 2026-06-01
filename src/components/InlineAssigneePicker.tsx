@@ -3,9 +3,7 @@ import { UserPlus } from "lucide-react";
 import { useAppDispatch, useAppSelector } from "../redux/hooks";
 import { selectTaskById } from "../redux/tasks/selectors";
 import { selectProjectMemberUsers } from "../redux/projects/selectors";
-import {
-  addTaskAssignee,
-} from "../redux/tasks/asyncThunks";
+import { addTaskAssignee } from "../redux/tasks/asyncThunks";
 import type { User } from "../types/user";
 
 interface InlineAssigneePickerProps {
