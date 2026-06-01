@@ -28,7 +28,7 @@ import { selectAllTasks } from "../redux/tasks/selectors";
 import { selectAllUsers } from "../redux/users/selectors";
 import { selectAllProjects } from "../redux/projects/selectors";
 import { selectAuth } from "../redux/auth/selectors";
-import { PRIORITY_COLORS, PRIORITY_SHORT } from "../redux/tasks/types";
+import { PRIORITY_SHORT } from "../redux/tasks/types";
 import { Badge } from "../components/UI/Badge";
 import Timeline from "../components/Timeline";
 import { useTheme } from "../hooks/useTheme";
@@ -426,22 +426,20 @@ export default function Home() {
                 return (
                   <div
                     key={task.id}
-                    className={`flex flex-col gap-2.5 rounded-xl border bg-white p-4 shadow-sm transition-shadow hover:shadow-md dark:bg-gray-800 ${
-                      isMyTask
+                    className={`flex flex-col gap-2.5 rounded-xl border bg-white p-4 shadow-sm transition-shadow hover:shadow-md dark:bg-gray-800 ${isMyTask
                         ? "border-indigo-200 dark:border-indigo-700/50"
                         : "border-gray-200 dark:border-gray-700"
-                    }`}
+                      }`}
                   >
                     {/* Priority + due label */}
                     <div className="flex items-center justify-between gap-2">
                       <span
-                        className={`rounded px-1.5 py-0.5 text-[10px] font-semibold ${
-                          level === "danger"
+                        className={`rounded px-1.5 py-0.5 text-[10px] font-semibold ${level === "danger"
                             ? "bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400"
                             : level === "warn"
                               ? "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400"
                               : "bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300"
-                        }`}
+                          }`}
                       >
                         {label}
                       </span>

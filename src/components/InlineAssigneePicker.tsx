@@ -1,11 +1,10 @@
 import { useEffect, useRef, useState } from "react";
-import { UserPlus, X } from "lucide-react";
+import { UserPlus } from "lucide-react";
 import { useAppDispatch, useAppSelector } from "../redux/hooks";
 import { selectTaskById } from "../redux/tasks/selectors";
 import { selectProjectMemberUsers } from "../redux/projects/selectors";
 import {
   addTaskAssignee,
-  removeTaskAssignee,
 } from "../redux/tasks/asyncThunks";
 import type { User } from "../types/user";
 
