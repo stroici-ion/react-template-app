@@ -13,6 +13,23 @@ const toSnakeCase = (input: Record<string, any>): Record<string, any> => {
   return out;
 };
 
+export const fetchAllTasks = createAsyncThunk(
+  "tasks/fetchAllTasks",
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await api.get("/tasks", { params: { per_page: 500 } });
+      return parseApiResponse(response.data) as {
+        tasks: Task[];
+        pagination: PaginationMeta;
+      };
+    } catch (error: any) {
+      return rejectWithValue(
+        error.response?.data?.error || "Failed to load tasks",
+      );
+    }
+  },
+);
+
 export const fetchTasks = createAsyncThunk(
   "tasks/fetchTasks",
   async (
