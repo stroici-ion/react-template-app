@@ -110,7 +110,10 @@ const tasksSlice = createSlice({
         for (const update of cascadeUpdates) {
           tasksAdapter.updateOne(state, {
             id: update.id,
-            changes: { priority: update.priority as any, status: update.status as any },
+            changes: {
+              priority: update.priority as any,
+              status: update.status as any,
+            },
           });
         }
       })

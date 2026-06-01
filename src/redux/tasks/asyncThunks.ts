@@ -68,9 +68,17 @@ export const updateTask = createAsyncThunk(
       });
       const data = parseApiResponse(response.data) as {
         task: Task;
-        cascadeUpdates: Array<{ id: number; priority: string | null; status: string }>;
+        cascadeUpdates: Array<{
+          id: number;
+          priority: string | null;
+          status: string;
+        }>;
       };
-      return { id, changes: data.task, cascadeUpdates: data.cascadeUpdates ?? [] };
+      return {
+        id,
+        changes: data.task,
+        cascadeUpdates: data.cascadeUpdates ?? [],
+      };
     } catch (error: any) {
       return rejectWithValue(
         error.response?.data?.error ||

@@ -41,7 +41,6 @@ export default function ProjectDetail() {
   if (!project) {
     return (
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-
         <div className="flex items-center justify-center py-32 text-gray-400">
           Loading…
         </div>
@@ -141,7 +140,10 @@ export default function ProjectDetail() {
 
         <div className="mb-6 border-b border-gray-200 dark:border-gray-700">
           <nav className="flex gap-1">
-            <button className={tabClass("tasks")} onClick={() => setTab("tasks")}>
+            <button
+              className={tabClass("tasks")}
+              onClick={() => setTab("tasks")}
+            >
               Tasks
             </button>
             <button

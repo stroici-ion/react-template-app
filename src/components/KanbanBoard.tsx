@@ -21,27 +21,32 @@ const COLUMNS: { key: TaskStatus; label: string; color: string }[] = [
   {
     key: Status.Backlog,
     label: "Backlog",
-    color: "bg-gray-100 dark:bg-gray-900 border-1 border-gray-100 dark:border-gray-900",
+    color:
+      "bg-gray-100 dark:bg-gray-900 border-1 border-gray-100 dark:border-gray-900",
   },
   {
     key: Status.Todo,
     label: "Todo",
-    color: "bg-gray-100 dark:bg-gray-900 border-1 border-blue-100 dark:border-blue-900",
+    color:
+      "bg-gray-100 dark:bg-gray-900 border-1 border-blue-100 dark:border-blue-900",
   },
   {
     key: Status.InProgress,
     label: "In Progress",
-    color: "bg-gray-100 dark:bg-gray-900 border-1 border-yellow-100 dark:border-yellow-900",
+    color:
+      "bg-gray-100 dark:bg-gray-900 border-1 border-yellow-100 dark:border-yellow-900",
   },
   {
     key: Status.Closed,
     label: "Closed",
-    color: "bg-gray-100 dark:bg-gray-900 border-1 border-green-100 dark:border-green-900",
+    color:
+      "bg-gray-100 dark:bg-gray-900 border-1 border-green-100 dark:border-green-900",
   },
   {
     key: Status.Cancelled,
     label: "Cancelled",
-    color: "bg-gray-100 dark:bg-gray-900 border-1 border-red-100 dark:border-red-900",
+    color:
+      "bg-gray-100 dark:bg-gray-900 border-1 border-red-100 dark:border-red-900",
   },
 ];
 

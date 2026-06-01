@@ -205,7 +205,9 @@ export const EditTaskModal = ({ taskId, onClose }: EditTaskModalProps) => {
                   value={priority ?? ""}
                   onChange={(e) =>
                     setPriority(
-                      e.target.value === "" ? null : (e.target.value as TaskPriority),
+                      e.target.value === ""
+                        ? null
+                        : (e.target.value as TaskPriority),
                     )
                   }
                   className="w-full rounded-lg border border-gray-300 bg-gray-50 px-4 py-2 text-sm text-gray-900 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-50"

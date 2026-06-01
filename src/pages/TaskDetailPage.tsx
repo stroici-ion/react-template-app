@@ -157,7 +157,6 @@ export default function TaskDetailPage() {
   if (!task) {
     return (
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-
         <div className="flex items-center justify-center py-32">
           <div className="text-center">
             <div className="mb-3 text-gray-300 dark:text-gray-600">
@@ -400,7 +399,9 @@ export default function TaskDetailPage() {
                   value={priority ?? ""}
                   onChange={(e) =>
                     setPriority(
-                      e.target.value === "" ? null : (e.target.value as TaskPriority),
+                      e.target.value === ""
+                        ? null
+                        : (e.target.value as TaskPriority),
                     )
                   }
                   className="w-full rounded-lg border border-gray-300 bg-gray-50 px-3 py-1.5 text-sm text-gray-900 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-50"

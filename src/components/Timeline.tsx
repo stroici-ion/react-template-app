@@ -1,6 +1,11 @@
 import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ChevronLeft, ChevronRight, ExternalLink, MoveRight } from "lucide-react";
+import {
+  ChevronLeft,
+  ChevronRight,
+  ExternalLink,
+  MoveRight,
+} from "lucide-react";
 import clsx from "clsx";
 import {
   PRIORITY_COLORS,
@@ -21,8 +26,8 @@ type ViewMode = "daily" | "weekly" | "monthly";
 type BarKind = "range" | "due-within" | "due-overflow";
 
 interface BarGeom {
-  left: number;   // % from left edge
-  width: number;  // % of total grid width
+  left: number; // % from left edge
+  width: number; // % of total grid width
   kind: BarKind;
 }
 
@@ -309,13 +314,20 @@ function BarContent({
         gradient,
         bar.kind === "due-overflow" && "rounded-r-none",
         bar.kind === "due-within" && "rounded-r-sm",
-        isMine ? "opacity-100 ring-2 ring-white/50" : "opacity-70 hover:opacity-100",
+        isMine
+          ? "opacity-100 ring-2 ring-white/50"
+          : "opacity-70 hover:opacity-100",
       )}
       style={{ left: `${bar.left}%`, width: `${bar.width}%` }}
     >
       {/* Assignees */}
       {(task.assigneeIds?.length ?? 0) > 0 && (
-        <AvatarGroup ids={task.assigneeIds} users={allUsers} max={2} size="xs" />
+        <AvatarGroup
+          ids={task.assigneeIds}
+          users={allUsers}
+          max={2}
+          size="xs"
+        />
       )}
 
       {/* Title */}
@@ -491,16 +503,13 @@ function GanttRow({
       {/* Subtask indent indicator */}
       {isSubtask && (
         <div
-          className="absolute top-0 bottom-0 border-l-2 border-indigo-100 dark:border-indigo-900/40"
+          className="absolute bottom-0 top-0 border-l-2 border-indigo-100 dark:border-indigo-900/40"
           style={{ left: indent - 6 }}
         />
       )}
 
       {bar && (
-        <div
-          className="absolute inset-y-0"
-          style={{ left: indent, right: 0 }}
-        >
+        <div className="absolute inset-y-0" style={{ left: indent, right: 0 }}>
           <BarContent
             task={task}
             allUsers={allUsers}
@@ -570,7 +579,9 @@ export function Timeline({ tasks, currentUser }: TimelineProps) {
     setViewMode(m);
     if (m === "weekly") setPeriodStart(startOfWeek(new Date()));
     else if (m === "monthly")
-      setPeriodStart(new Date(new Date().getFullYear(), new Date().getMonth(), 1));
+      setPeriodStart(
+        new Date(new Date().getFullYear(), new Date().getMonth(), 1),
+      );
   }
 
   const isMonthly = viewMode === "monthly";
@@ -639,7 +650,9 @@ export function Timeline({ tasks, currentUser }: TimelineProps) {
               key={task.id}
               task={task}
               depth={depth}
-              isMine={task.assigneeIds?.includes(Number(currentUser.id)) ?? false}
+              isMine={
+                task.assigneeIds?.includes(Number(currentUser.id)) ?? false
+              }
               allUsers={allUsers}
               onView={() =>
                 navigate(`/projects/${task.projectId}/tasks/${task.id}`)
@@ -653,7 +666,6 @@ export function Timeline({ tasks, currentUser }: TimelineProps) {
       {viewMode !== "daily" && (
         <div className="overflow-x-auto">
           <div style={{ minWidth: viewDays.length * colMinPx }}>
-
             {/* Date header */}
             <div className="relative flex border-b border-gray-200 dark:border-gray-700">
               {viewDays.map((day, i) => {
