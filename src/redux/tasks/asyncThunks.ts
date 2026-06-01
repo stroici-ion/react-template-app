@@ -66,8 +66,11 @@ export const updateTask = createAsyncThunk(
       const response = await api.patch(`/tasks/${id}`, {
         task: toSnakeCase(changes),
       });
-      const data = parseApiResponse(response.data) as Task;
-      return { id, changes: data };
+      const data = parseApiResponse(response.data) as {
+        task: Task;
+        cascadeUpdates: Array<{ id: number; priority: string | null; status: string }>;
+      };
+      return { id, changes: data.task, cascadeUpdates: data.cascadeUpdates ?? [] };
     } catch (error: any) {
       return rejectWithValue(
         error.response?.data?.error ||

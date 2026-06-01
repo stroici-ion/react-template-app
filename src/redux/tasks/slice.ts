@@ -76,7 +76,7 @@ const tasksSlice = createSlice({
         }
       })
       .addCase(updateTask.fulfilled, (state, action) => {
-        const { id, changes } = action.payload;
+        const { id, changes, cascadeUpdates } = action.payload;
         const oldParentId = state.entities[id]?.parentId ?? null;
         tasksAdapter.updateOne(state, { id, changes });
 
@@ -104,6 +104,14 @@ const tasksSlice = createSlice({
               if (!bucket.includes(id)) bucket.push(id);
             }
           }
+        }
+
+        // Apply cascaded priority/status changes to subtasks
+        for (const update of cascadeUpdates) {
+          tasksAdapter.updateOne(state, {
+            id: update.id,
+            changes: { priority: update.priority as any, status: update.status as any },
+          });
         }
       })
       .addCase(deleteTask.fulfilled, (state, action) => {

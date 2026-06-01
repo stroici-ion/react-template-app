@@ -14,7 +14,10 @@ import {
   Calendar,
   ExternalLink,
 } from "lucide-react";
+import { PRIORITY_COLORS, PRIORITY_SHORT } from "../redux/tasks/types";
+import { Badge } from "./UI/Badge";
 import { useNavigate } from "react-router-dom";
+import { useAlert } from "../hooks/useAlert";
 import { useAppDispatch, useAppSelector } from "../redux/hooks";
 import {
   selectSubtasksByParentId,
@@ -63,6 +66,7 @@ export const TaskItem = ({
 }: TaskItemProps) => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
+  const alert = useAlert();
   const task = useAppSelector((state) => selectTaskById(state, taskId));
   const subtasks = useAppSelector((state) =>
     selectSubtasksByParentId(state, taskId),
@@ -210,9 +214,17 @@ export const TaskItem = ({
             <div onClick={(e) => e.stopPropagation()}>
               <TaskStatusSelect
                 status={task.status}
-                onChange={(status) =>
-                  dispatch(updateTask({ id: task.id, changes: { status } }))
-                }
+                onChange={async (status) => {
+                  try {
+                    await dispatch(
+                      updateTask({ id: task.id, changes: { status } }),
+                    ).unwrap();
+                  } catch (err: any) {
+                    alert.error(
+                      typeof err === "string" ? err : "Failed to update status",
+                    );
+                  }
+                }}
               />
             </div>
             <div className="flex-1">
@@ -243,6 +255,15 @@ export const TaskItem = ({
                 taskId={taskId}
                 projectId={task.projectId}
               />
+              {task.priority && (
+                <div onClick={(e) => e.stopPropagation()}>
+                  <Badge
+                    text={PRIORITY_SHORT[task.priority]}
+                    color={PRIORITY_COLORS[task.priority] ?? "gray"}
+                    size="xs"
+                  />
+                </div>
+              )}
               <div onClick={(e) => e.stopPropagation()}>
                 {task.dueDate ? (
                   <div

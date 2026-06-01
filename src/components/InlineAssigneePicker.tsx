@@ -84,14 +84,6 @@ export default function InlineAssigneePicker({
               {initials(u)}
             </span>
           )}
-          <button
-            onClick={() =>
-              dispatch(removeTaskAssignee({ taskId, userId: Number(u.id) }))
-            }
-            className="absolute -right-1 -top-1 hidden h-3.5 w-3.5 items-center justify-center rounded-full bg-red-500 text-white group-hover:flex"
-          >
-            <X size={8} />
-          </button>
         </div>
       ))}
 

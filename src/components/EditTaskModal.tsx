@@ -9,7 +9,14 @@ import {
   removeTaskAssignee,
   updateTask,
 } from "../redux/tasks/asyncThunks";
-import { Status, type Task, type TaskStatus } from "../redux/tasks/types";
+import {
+  Priority,
+  Status,
+  type Task,
+  type TaskPriority,
+  type TaskStatus,
+  PRIORITY_LABELS,
+} from "../redux/tasks/types";
 import type { User } from "../types/user";
 import Card from "./UI/Card";
 import { Input } from "./UI/Input";
@@ -49,18 +56,21 @@ export const EditTaskModal = ({ taskId, onClose }: EditTaskModalProps) => {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [status, setStatus] = useState<TaskStatus>(Status.Todo);
+  const [priority, setPriority] = useState<TaskPriority | null>(null);
   const [startDate, setStartDate] = useState("");
   const [dueDate, setDueDate] = useState("");
   const [parentId, setParentId] = useState<number | null>(null);
   const [pendingAssigneeIds, setPendingAssigneeIds] = useState<number[]>([]);
   const [pendingAssignees, setPendingAssignees] = useState<User[]>([]);
   const [submitting, setSubmitting] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!task) return;
     setTitle(task.title);
     setDescription(task.description ?? "");
     setStatus(task.status);
+    setPriority(task.priority ?? null);
     setStartDate(toInputDate(task.startDate));
     setDueDate(toInputDate(task.dueDate));
     setParentId(task.parentId);
@@ -94,6 +104,7 @@ export const EditTaskModal = ({ taskId, onClose }: EditTaskModalProps) => {
 
   const handleSave = async () => {
     setSubmitting(true);
+    setSaveError(null);
     try {
       await dispatch(
         updateTask({
@@ -102,6 +113,7 @@ export const EditTaskModal = ({ taskId, onClose }: EditTaskModalProps) => {
             title,
             description,
             status,
+            priority,
             startDate: fromInputDate(startDate),
             dueDate: fromInputDate(dueDate),
             parentId,
@@ -124,8 +136,8 @@ export const EditTaskModal = ({ taskId, onClose }: EditTaskModalProps) => {
       ]);
 
       onClose();
-    } catch {
-      // keep modal open on failure
+    } catch (err: any) {
+      setSaveError(typeof err === "string" ? err : "Failed to save changes");
     } finally {
       setSubmitting(false);
     }
@@ -168,21 +180,43 @@ export const EditTaskModal = ({ taskId, onClose }: EditTaskModalProps) => {
               />
             </div>
 
-            <div>
-              <label className="mb-1 block text-sm font-medium text-gray-900 dark:text-gray-50">
-                Status
-              </label>
-              <select
-                value={status}
-                onChange={(e) => setStatus(e.target.value as TaskStatus)}
-                className="w-full rounded-lg border border-gray-300 bg-gray-50 px-4 py-2 text-sm text-gray-900 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-50"
-              >
-                <option value={Status.Backlog}>Backlog</option>
-                <option value={Status.Todo}>Todo</option>
-                <option value={Status.InProgress}>In Progress</option>
-                <option value={Status.Closed}>Closed</option>
-                <option value={Status.Cancelled}>Cancelled</option>
-              </select>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="mb-1 block text-sm font-medium text-gray-900 dark:text-gray-50">
+                  Status
+                </label>
+                <select
+                  value={status}
+                  onChange={(e) => setStatus(e.target.value as TaskStatus)}
+                  className="w-full rounded-lg border border-gray-300 bg-gray-50 px-4 py-2 text-sm text-gray-900 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-50"
+                >
+                  <option value={Status.Backlog}>Backlog</option>
+                  <option value={Status.Todo}>Todo</option>
+                  <option value={Status.InProgress}>In Progress</option>
+                  <option value={Status.Closed}>Closed</option>
+                  <option value={Status.Cancelled}>Cancelled</option>
+                </select>
+              </div>
+              <div>
+                <label className="mb-1 block text-sm font-medium text-gray-900 dark:text-gray-50">
+                  Priority
+                </label>
+                <select
+                  value={priority ?? ""}
+                  onChange={(e) =>
+                    setPriority(
+                      e.target.value === "" ? null : (e.target.value as TaskPriority),
+                    )
+                  }
+                  className="w-full rounded-lg border border-gray-300 bg-gray-50 px-4 py-2 text-sm text-gray-900 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-50"
+                >
+                  <option value="">No priority</option>
+                  <option value={Priority.P0}>{PRIORITY_LABELS.p0}</option>
+                  <option value={Priority.P1}>{PRIORITY_LABELS.p1}</option>
+                  <option value={Priority.P2}>{PRIORITY_LABELS.p2}</option>
+                  <option value={Priority.P3}>{PRIORITY_LABELS.p3}</option>
+                </select>
+              </div>
             </div>
 
             <div className="grid grid-cols-2 gap-3">
@@ -232,7 +266,13 @@ export const EditTaskModal = ({ taskId, onClose }: EditTaskModalProps) => {
             />
           </div>
 
-          <div className="mt-5 flex justify-end gap-2">
+          {saveError && (
+            <p className="mt-3 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-600 dark:bg-red-900/20 dark:text-red-400">
+              {saveError}
+            </p>
+          )}
+
+          <div className="mt-4 flex justify-end gap-2">
             <PrimaryButton
               text="Cancel"
               outline
