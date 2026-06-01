@@ -5,7 +5,6 @@ import { useAppDispatch, useAppSelector } from "../redux/hooks";
 import { deleteProject, fetchProject } from "../redux/projects/asyncThunks";
 import { selectProjectById } from "../redux/projects/selectors";
 import { selectAuth } from "../redux/auth/selectors";
-import { Header } from "../components/Header";
 import { TaskList } from "./TaskList";
 import MembersList from "../components/MembersList";
 import ProjectFormModal from "../components/ProjectFormModal";
@@ -37,7 +36,7 @@ export default function ProjectDetail() {
   if (!project) {
     return (
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-        <Header />
+
         <div className="flex items-center justify-center py-32 text-gray-400">
           Loading…
         </div>
@@ -93,8 +92,6 @@ export default function ProjectDetail() {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      <Header />
-
       <main className="mx-auto max-w-7xl px-4 py-6 sm:px-6 sm:py-8">
         <button
           onClick={() => navigate("/projects")}

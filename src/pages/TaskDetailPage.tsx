@@ -23,7 +23,6 @@ import { fetchProject } from "../redux/projects/asyncThunks";
 import { fetchUsers } from "../redux/users/asyncThunks";
 import { Status, type Task, type TaskStatus } from "../redux/tasks/types";
 import type { User } from "../types/user";
-import { Header } from "../components/Header";
 import TaskStatusSelect from "../components/TaskStatusSelect";
 import UserSearchDropdown from "../components/UserSearchDropdown";
 import PrimaryButton from "../components/UI/PrimaryButton";
@@ -145,7 +144,7 @@ export default function TaskDetailPage() {
   if (!task) {
     return (
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-        <Header />
+
         <div className="flex items-center justify-center py-32">
           <div className="text-center">
             <div className="mb-3 text-gray-300 dark:text-gray-600">
@@ -242,8 +241,6 @@ export default function TaskDetailPage() {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      <Header />
-
       <main className="mx-auto max-w-7xl px-4 py-6 sm:px-6 sm:py-8">
         {/* Breadcrumb */}
         <div className="mb-6 flex items-center gap-2 text-sm">

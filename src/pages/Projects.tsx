@@ -8,7 +8,6 @@ import {
   selectProjectsLoading,
   selectProjectsPagination,
 } from "../redux/projects/selectors";
-import { Header } from "../components/Header";
 import ProjectFormModal from "../components/ProjectFormModal";
 import Pagination from "../components/UI/Pagination";
 import PrimaryButton from "../components/UI/PrimaryButton";
@@ -27,8 +26,6 @@ export default function Projects() {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      <Header />
-
       <main className="mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-10">
         <div className="mb-8 flex items-center justify-between">
           <div>
