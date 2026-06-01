@@ -5,14 +5,17 @@ import { useAppDispatch, useAppSelector } from "../redux/hooks";
 import { deleteProject, fetchProject } from "../redux/projects/asyncThunks";
 import { selectProjectById } from "../redux/projects/selectors";
 import { selectAuth } from "../redux/auth/selectors";
+import { selectAllTasks } from "../redux/tasks/selectors";
+import { fetchTasks } from "../redux/tasks/asyncThunks";
 import { TaskList } from "./TaskList";
 import MembersList from "../components/MembersList";
 import ProjectFormModal from "../components/ProjectFormModal";
 import ContextMenu from "../components/UI/ContextMenu";
 import MenuOptions from "../components/UI/MenuOptions";
 import { fetchUsers } from "../redux/users/asyncThunks";
+import Timeline from "../components/Timeline";
 
-type Tab = "tasks" | "members";
+type Tab = "tasks" | "members" | "timeline";
 
 export default function ProjectDetail() {
   const { id } = useParams<{ id: string }>();
@@ -23,6 +26,7 @@ export default function ProjectDetail() {
     selectProjectById(state, projectId),
   );
   const { user } = useAppSelector(selectAuth);
+  const allTasks = useAppSelector(selectAllTasks);
   const [tab, setTab] = useState<Tab>("tasks");
   const [showEdit, setShowEdit] = useState(false);
 
@@ -30,6 +34,7 @@ export default function ProjectDetail() {
     if (projectId) {
       dispatch(fetchProject(projectId));
       dispatch(fetchUsers({ projectId }));
+      dispatch(fetchTasks({ projectId }));
     }
   }, [dispatch, projectId]);
 
@@ -90,6 +95,9 @@ export default function ProjectDetail() {
         : "border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
     }`;
 
+  // Only tasks belonging to this project
+  const projectTasks = allTasks.filter((t) => t.projectId === projectId);
+
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       <main className="mx-auto max-w-7xl px-4 py-6 sm:px-6 sm:py-8">
@@ -133,11 +141,14 @@ export default function ProjectDetail() {
 
         <div className="mb-6 border-b border-gray-200 dark:border-gray-700">
           <nav className="flex gap-1">
-            <button
-              className={tabClass("tasks")}
-              onClick={() => setTab("tasks")}
-            >
+            <button className={tabClass("tasks")} onClick={() => setTab("tasks")}>
               Tasks
+            </button>
+            <button
+              className={tabClass("timeline")}
+              onClick={() => setTab("timeline")}
+            >
+              Timeline
             </button>
             <button
               className={tabClass("members")}
@@ -149,6 +160,10 @@ export default function ProjectDetail() {
         </div>
 
         {tab === "tasks" && <TaskList projectId={project.id} />}
+
+        {tab === "timeline" && user && (
+          <Timeline tasks={projectTasks} currentUser={user} />
+        )}
 
         {tab === "members" && (
           <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
